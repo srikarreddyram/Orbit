@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
-import { ArrowLeft, Building2, CreditCard, Landmark, Wallet } from 'lucide-react'
+import { ArrowLeft, Building2, CreditCard, Landmark, Trash2, Wallet } from 'lucide-react'
+import toast from 'react-hot-toast'
 import { formatCurrency } from '../../../utils/currencyHelpers'
 import { getMonthStart } from '../../../utils/dateHelpers'
 import TransactionList from './TransactionList'
@@ -15,9 +16,20 @@ const ICONS = {
   other: Wallet,
 }
 
-export default function AccountDetail({ account, transactions, categories, deleteTransaction, currency, onBack }) {
+export default function AccountDetail({ account, transactions, categories, deleteTransaction, deleteAccount, currency, onBack }) {
   const Icon = ICONS[account.type] || Wallet
   const isCredit = account.type === 'credit'
+
+  const handleDelete = async () => {
+    if (!confirm(`Delete "${account.name}"? Past transactions will be kept but unlinked from this account.`)) return
+    try {
+      await deleteAccount(account.id)
+      toast.success('Account deleted')
+      onBack()
+    } catch {
+      toast.error('Failed to delete account')
+    }
+  }
 
   const accountTx = useMemo(
     () => transactions.filter((t) => t.account_id === account.id),
@@ -42,12 +54,20 @@ export default function AccountDetail({ account, transactions, categories, delet
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      <button
-        onClick={onBack}
-        className="flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors"
-      >
-        <ArrowLeft size={16} /> Back to Accounts
-      </button>
+      <div className="flex items-center justify-between">
+        <button
+          onClick={onBack}
+          className="flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors"
+        >
+          <ArrowLeft size={16} /> Back to Accounts
+        </button>
+        <button
+          onClick={handleDelete}
+          className="flex items-center gap-1.5 text-sm text-text-muted hover:text-accent-red transition-colors"
+        >
+          <Trash2 size={14} /> Delete
+        </button>
+      </div>
 
       <div className="flex items-center gap-4">
         <div

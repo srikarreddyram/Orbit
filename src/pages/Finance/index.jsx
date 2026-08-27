@@ -25,8 +25,8 @@ const TABS = [
 
 export default function Finance() {
   const { 
-    transactions, budgetLimits, accounts, recurring, categories, isLoading, 
-    addTransaction, deleteTransaction, addAccount, addRecurring,
+    transactions, budgetLimits, accounts, recurring, categories, isLoading,
+    addTransaction, deleteTransaction, addAccount, deleteAccount, addRecurring,
     addCategory, deleteCategory, restoreDefaultCategories, saveBudgetLimit, deleteBudgetLimit
   } = useFinance()
   const { profile } = useAuth()
@@ -107,6 +107,7 @@ export default function Finance() {
             transactions={transactions}
             categories={categories}
             deleteTransaction={deleteTransaction}
+            deleteAccount={deleteAccount}
             currency={currency}
             onBack={() => setSelectedAccount(null)}
           />
@@ -142,6 +143,7 @@ export default function Finance() {
               <AccountsTab
                 accounts={accounts}
                 addAccount={addAccount}
+                deleteAccount={deleteAccount}
                 transactions={transactions}
                 currency={currency}
                 onSelectAccount={setSelectedAccount}

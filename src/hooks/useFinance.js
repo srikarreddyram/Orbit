@@ -45,6 +45,14 @@ export default function useFinance() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['accounts', user?.id] }),
   })
 
+  const deleteAccount = useMutation({
+    mutationFn: (id) => api.delete(`/finance/accounts/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['accounts', user?.id] })
+      queryClient.invalidateQueries({ queryKey: ['transactions', user?.id] })
+    },
+  })
+
   const addRecurring = useMutation({
     mutationFn: (rec) => api.post('/finance/recurring-transactions', rec),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['recurring', user?.id] }),
@@ -91,6 +99,7 @@ export default function useFinance() {
     addTransaction: addTransaction.mutateAsync,
     deleteTransaction: deleteTransaction.mutateAsync,
     addAccount: addAccount.mutateAsync,
+    deleteAccount: deleteAccount.mutateAsync,
     addRecurring: addRecurring.mutateAsync,
     addCategory: addCategory.mutateAsync,
     deleteCategory: deleteCategory.mutateAsync,

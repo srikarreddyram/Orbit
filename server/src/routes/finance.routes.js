@@ -86,6 +86,16 @@ router.post('/accounts', asyncHandler(async (req, res) => {
   res.status(201).json(account)
 }))
 
+router.delete('/accounts/:id', asyncHandler(async (req, res) => {
+  await Account.deleteOne({ _id: req.params.id, user_id: req.userId })
+  // Keep the transaction history, just unlink it from the now-deleted account
+  await Transaction.updateMany(
+    { account_id: req.params.id, user_id: req.userId },
+    { $unset: { account_id: '' } }
+  )
+  res.status(204).end()
+}))
+
 // --- Recurring transactions ---
 router.get('/recurring-transactions', asyncHandler(async (req, res) => {
   const items = await RecurringTransaction.find({ user_id: req.userId })

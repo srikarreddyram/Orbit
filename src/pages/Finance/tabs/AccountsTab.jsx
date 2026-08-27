@@ -1,12 +1,12 @@
 import { useState, useMemo, useRef } from 'react'
-import { Building2, CreditCard, Landmark, Plus, Wallet } from 'lucide-react'
+import { Building2, CreditCard, Landmark, Plus, Trash2, Wallet } from 'lucide-react'
 import { getCurrencySymbol, formatCurrency } from '../../../utils/currencyHelpers'
 import { getMonthStart } from '../../../utils/dateHelpers'
 import Modal from '../../../components/ui/Modal'
 import Button from '../../../components/ui/Button'
 import toast from 'react-hot-toast'
 
-export default function AccountsTab({ accounts = [], addAccount, transactions = [], currency = 'USD', onSelectAccount }) {
+export default function AccountsTab({ accounts = [], addAccount, deleteAccount, transactions = [], currency = 'USD', onSelectAccount }) {
   const [showAddModal, setShowAddModal] = useState(false)
   const [name, setName] = useState('')
   const [type, setType] = useState('checking')
@@ -35,6 +35,17 @@ export default function AccountsTab({ accounts = [], addAccount, transactions = 
     }
     return spend
   }, [transactions])
+
+  const handleDelete = async (e, account) => {
+    e.stopPropagation()
+    if (!confirm(`Delete "${account.name}"? Past transactions will be kept but unlinked from this account.`)) return
+    try {
+      await deleteAccount(account.id)
+      toast.success('Account deleted')
+    } catch {
+      toast.error('Failed to delete account')
+    }
+  }
 
   const handleAdd = async (e) => {
     e.preventDefault()
@@ -127,9 +138,12 @@ export default function AccountsTab({ accounts = [], addAccount, transactions = 
               const spend = spendByAccount[account.id] || { monthly: 0, allTime: 0 }
 
               return (
-                <button
+                <div
                   key={account.id}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => onSelectAccount?.(account)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onSelectAccount?.(account) }}
                   className="group p-5 rounded-3xl border border-white/5 bg-surface/40 hover:bg-surface/80 transition-all cursor-pointer relative overflow-hidden backdrop-blur-xl text-left"
                 >
                   <div
@@ -147,6 +161,13 @@ export default function AccountsTab({ accounts = [], addAccount, transactions = 
                         <p className="text-xs text-text-muted mt-0.5 capitalize">{account.type}</p>
                       </div>
                     </div>
+                    <button
+                      onClick={(e) => handleDelete(e, account)}
+                      className="opacity-0 group-hover:opacity-100 p-2 rounded-lg text-text-muted hover:text-accent-red hover:bg-accent-red/10 transition-all"
+                      aria-label={`Delete ${account.name}`}
+                    >
+                      <Trash2 size={14} />
+                    </button>
                   </div>
 
                   <div className="flex justify-between items-end relative z-10 mb-4">
@@ -175,7 +196,7 @@ export default function AccountsTab({ accounts = [], addAccount, transactions = 
                       <p className="text-sm font-mono-numbers text-text-primary font-semibold">{formatCurrency(spend.allTime, currency)}</p>
                     </div>
                   </div>
-                </button>
+                </div>
               )
             })}
           </div>
