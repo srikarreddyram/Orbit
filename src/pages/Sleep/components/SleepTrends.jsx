@@ -25,7 +25,7 @@ export default function SleepTrends({ sleepData }) {
     <div className="bg-surface/30 border border-white/5 rounded-3xl p-6 backdrop-blur-md h-64 min-w-0">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={chartData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
-          <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: '#6b6b8a', fontSize: 12 }} />
+          <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: '#6E6877', fontSize: 12 }} />
           <Tooltip 
             cursor={{ fill: 'rgba(255,255,255,0.02)' }}
             content={({ active, payload }) => {
@@ -44,10 +44,10 @@ export default function SleepTrends({ sleepData }) {
           <Bar dataKey="hours" radius={[6, 6, 6, 6]} maxBarSize={40}>
             {chartData.map((entry, index) => {
               // Color based on hours (8h+ is optimal)
-              let color = '#3b82f6' // normal blue
-              if (entry.hours >= 8) color = '#818cf8'
-              else if (entry.hours < 6) color = '#fbbf24'
-              else if (entry.hours === 0) color = '#1e1e2e'
+              let color = '#38BDF8' // normal — cursed blue
+              if (entry.hours >= 8) color = '#7C3AED'
+              else if (entry.hours < 6) color = '#C2872A'
+              else if (entry.hours === 0) color = '#2A2530'
               
               return <Cell key={`cell-${index}`} fill={color} />
             })}

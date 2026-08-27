@@ -50,7 +50,7 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md', c
             className={`fixed inset-0 z-50 flex items-center justify-center p-4`}
           >
             <div
-              className={`glass rounded-2xl w-full ${sizes[size]} max-h-[85vh] overflow-y-auto ${className}`}
+              className={`glass rounded-card w-full shadow-elevated ${sizes[size]} max-h-[85vh] overflow-y-auto ${className}`}
               onClick={(e) => e.stopPropagation()}
               role="dialog"
               aria-modal="true"
@@ -109,7 +109,7 @@ export function BottomSheet({ isOpen, onClose, title, children }) {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-50 glass rounded-t-2xl max-h-[85vh] overflow-y-auto"
+            className="fixed bottom-0 left-0 right-0 z-50 glass rounded-t-card max-h-[85vh] overflow-y-auto"
           >
             <div className="flex justify-center pt-3 pb-1">
               <div className="w-10 h-1 bg-text-muted/30 rounded-full" />

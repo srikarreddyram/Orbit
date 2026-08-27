@@ -31,8 +31,8 @@ export default function CategoryManagerModal({ isOpen, onClose, categories = [],
       setColor(COLOR_PALETTE[0])
       setIcon('Package')
       setIsCreating(false)
-    } catch (err) {
-      console.error(err)
+    } catch {
+      toast.error('Failed to create category')
     } finally {
       setIsSubmitting(false)
     }
@@ -49,7 +49,7 @@ export default function CategoryManagerModal({ isOpen, onClose, categories = [],
       try {
         await restoreDefaultCategories()
         toast.success('Defaults restored')
-      } catch (err) {
+      } catch {
         toast.error('Failed to restore defaults')
       }
     }

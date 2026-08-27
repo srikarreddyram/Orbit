@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Suspense, lazy } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { AnimatePresence } from 'framer-motion'
 import useAuth from './hooks/useAuth'
 import { AuthProvider } from './contexts/AuthContext'
 import { ErrorBoundary } from './components/ErrorBoundary'
@@ -15,8 +14,6 @@ const Workouts = lazy(() => import('./pages/Workouts'))
 const Sleep = lazy(() => import('./pages/Sleep'))
 const Nutrition = lazy(() => import('./pages/Nutrition'))
 const Finance = lazy(() => import('./pages/Finance'))
-const Habits = lazy(() => import('./pages/Habits'))
-const Mood = lazy(() => import('./pages/Mood'))
 const Settings = lazy(() => import('./pages/Settings'))
 
 const queryClient = new QueryClient({
@@ -79,8 +76,6 @@ function App() {
                 <Route path="sleep" element={<ErrorBoundary><Sleep /></ErrorBoundary>} />
                 <Route path="nutrition" element={<ErrorBoundary><Nutrition /></ErrorBoundary>} />
                 <Route path="finance" element={<ErrorBoundary><Finance /></ErrorBoundary>} />
-                <Route path="habits" element={<ErrorBoundary><Habits /></ErrorBoundary>} />
-                <Route path="mood" element={<ErrorBoundary><Mood /></ErrorBoundary>} />
                 <Route path="settings" element={<ErrorBoundary><Settings /></ErrorBoundary>} />
               </Route>
             </Routes>

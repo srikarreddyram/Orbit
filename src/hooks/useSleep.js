@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '../lib/supabase'
+import { api } from '../lib/api'
 import useAuth from './useAuth'
-
 import { calculateSleepRecovery } from '../utils/sleepAI'
 
 export default function useSleep() {
@@ -10,54 +9,21 @@ export default function useSleep() {
 
   const { data: sleepLogs = [], isLoading } = useQuery({
     queryKey: ['sleep', user?.id],
-    queryFn: async () => {
-      if (!user) return []
-      const { data, error } = await supabase
-        .from('sleep_logs')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('logged_at', { ascending: true })
-        // Fetch last 14 days for the chart
-        .gte('logged_at', new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString())
-      if (error) throw error
-      return data
-    },
+    queryFn: () => api.get('/sleep-logs'),
     enabled: !!user,
   })
 
   const logSleep = useMutation({
-    mutationFn: async (newLog) => {
-      if (!user) throw new Error('Not authenticated')
-      
-      // Pass the raw data through our local AI heuristic engine
+    mutationFn: (newLog) => {
       const aiResults = calculateSleepRecovery(newLog)
-      const enhancedLog = {
-        ...newLog,
-        ...aiResults,
-        user_id: user.id
-      }
-      
-      const { data, error } = await supabase
-        .from('sleep_logs')
-        .insert([enhancedLog])
-        .select()
-        .single()
-      if (error) throw error
-      return data
+      return api.post('/sleep-logs', { ...newLog, ...aiResults })
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sleep', user?.id] })
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['sleep', user?.id] }),
   })
 
   const deleteSleepLog = useMutation({
-    mutationFn: async (id) => {
-      const { error } = await supabase.from('sleep_logs').delete().eq('id', id)
-      if (error) throw error
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sleep', user?.id] })
-    },
+    mutationFn: (id) => api.delete(`/sleep-logs/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['sleep', user?.id] }),
   })
 
   return {

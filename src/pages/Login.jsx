@@ -23,7 +23,7 @@ export default function Login() {
     try {
       if (isSignUp) {
         await signUp(email, password, name)
-        toast.success('Account created! Welcome to LifeOS.')
+        toast.success('Account created! Welcome to Orbit.')
       } else {
         await signIn(email, password)
         toast.success('Welcome back!')
@@ -40,8 +40,9 @@ export default function Login() {
     <div className="min-h-screen bg-base flex items-center justify-center p-4">
       {/* Background gradient orbs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent-purple/5 rounded-full blur-[128px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent-blue/5 rounded-full blur-[128px]" />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent-purple/10 rounded-full blur-[128px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent-blue/10 rounded-full blur-[128px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-accent-pink/[0.04] rounded-full blur-[160px]" />
       </div>
 
       <motion.div
@@ -52,10 +53,13 @@ export default function Login() {
       >
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-accent-purple/20 flex items-center justify-center mb-4 glow-purple">
-            <Sparkles size={32} className="text-accent-purple" />
+          <div
+            className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 shadow-glow-purple"
+            style={{ background: '#7C3AED' }}
+          >
+            <Sparkles size={30} className="text-white" />
           </div>
-          <h1 className="text-2xl font-semibold text-text-primary tracking-tight">LifeOS</h1>
+          <h1 className="text-2xl font-semibold text-text-primary tracking-tight">Orbit</h1>
           <p className="text-sm text-text-secondary mt-1">Your personal life operating system</p>
         </div>
 
@@ -137,7 +141,7 @@ export default function Login() {
 
         {/* Footer */}
         <p className="text-xs text-text-muted text-center mt-6">
-          Your data is secured with Row Level Security on Supabase
+          Your data is private and scoped to your account
         </p>
       </motion.div>
     </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Calendar, Repeat, Plus } from 'lucide-react'
 import { getCurrencySymbol, formatCurrency } from '../../../utils/currencyHelpers'
 import { getIconComponent } from '../components/CategoryConfig'
@@ -10,17 +10,13 @@ export default function RecurringTab({ recurring = [], addRecurring, categories 
   const [showAddModal, setShowAddModal] = useState(false)
   const [name, setName] = useState('')
   const [amount, setAmount] = useState('')
+  const [txType, setTxType] = useState('expense')
   const [category, setCategory] = useState('')
   const [frequency, setFrequency] = useState('monthly')
   const [nextDate, setNextDate] = useState('')
 
-  const expenseCategories = categories.filter(c => c.type === 'expense')
-
-  useEffect(() => {
-    if (expenseCategories.length > 0 && !category) {
-      setCategory(expenseCategories[0].name)
-    }
-  }, [expenseCategories, category])
+  const availableCategories = categories.filter(c => c.type === txType)
+  const effectiveCategory = availableCategories.find(c => c.name === category)?.name || availableCategories[0]?.name || ''
 
   // Calculate monthly total. (Assuming all are monthly for simplicity of MVP, 
   // but let's do a basic conversion if not monthly)
@@ -36,8 +32,8 @@ export default function RecurringTab({ recurring = [], addRecurring, categories 
   const handleAdd = async (e) => {
     e.preventDefault()
     if (!name.trim() || !amount) return
-    if (!category) {
-      toast.error('Please create an expense category first')
+    if (!effectiveCategory) {
+      toast.error('Please create a category first')
       return
     }
 
@@ -45,16 +41,16 @@ export default function RecurringTab({ recurring = [], addRecurring, categories 
       await addRecurring({
         name,
         amount: parseFloat(amount),
-        category,
+        type: txType,
+        category: effectiveCategory,
         frequency,
-        next_date: nextDate || null,
-        is_active: true
+        next_date: nextDate,
       })
       setShowAddModal(false)
       setName('')
       setAmount('')
       toast.success('Subscription added')
-    } catch (err) {
+    } catch {
       toast.error('Failed to add subscription')
     }
   }
@@ -105,7 +101,7 @@ export default function RecurringTab({ recurring = [], addRecurring, categories 
         <div className="bg-surface/30 border border-white/5 rounded-3xl overflow-hidden shadow-sm backdrop-blur-md">
           {recurring.sort((a,b) => new Date(a.next_date) - new Date(b.next_date)).map((sub, index) => {
             const catObj = categories.find(c => c.name === sub.category)
-            const color = catObj ? catObj.color : '#94a3b8'
+            const color = catObj ? catObj.color : '#6E6877'
             const Icon = getIconComponent(catObj ? catObj.icon : 'Package')
             const date = sub.next_date ? new Date(sub.next_date) : null
             
@@ -166,6 +162,23 @@ export default function RecurringTab({ recurring = [], addRecurring, categories 
             />
           </div>
           <div>
+            <label className="text-xs font-semibold text-text-muted uppercase mb-1 block">Type</label>
+            <div className="flex p-1 bg-surface rounded-xl border border-border">
+              {['expense', 'income'].map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setTxType(t)}
+                  className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all capitalize ${
+                    txType === t ? 'bg-elevated text-white shadow-sm' : 'text-text-muted hover:text-text-secondary'
+                  }`}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
             <label className="text-xs font-semibold text-text-muted uppercase mb-1 block">Amount</label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">{getCurrencySymbol(currency)}</span>
@@ -183,16 +196,16 @@ export default function RecurringTab({ recurring = [], addRecurring, categories 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-semibold text-text-muted uppercase mb-1 block">Category</label>
-              <select 
-                value={category} 
-                onChange={e => setCategory(e.target.value)} 
+              <select
+                value={effectiveCategory}
+                onChange={e => setCategory(e.target.value)}
                 className="input-field cursor-pointer capitalize"
                 required
               >
-                {expenseCategories.length === 0 ? (
+                {availableCategories.length === 0 ? (
                   <option value="" disabled>No categories available</option>
                 ) : (
-                  expenseCategories.map(c => (
+                  availableCategories.map(c => (
                     <option key={c.id} value={c.name}>{c.name}</option>
                   ))
                 )}
@@ -201,10 +214,10 @@ export default function RecurringTab({ recurring = [], addRecurring, categories 
             <div>
               <label className="text-xs font-semibold text-text-muted uppercase mb-1 block">Frequency</label>
               <select value={frequency} onChange={e => setFrequency(e.target.value)} className="input-field cursor-pointer">
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
                 <option value="monthly">Monthly</option>
                 <option value="yearly">Yearly</option>
-                <option value="weekly">Weekly</option>
-                <option value="biweekly">Bi-weekly</option>
               </select>
             </div>
           </div>
@@ -218,7 +231,7 @@ export default function RecurringTab({ recurring = [], addRecurring, categories 
               required
             />
           </div>
-          <Button type="submit" disabled={!category} className="w-full bg-accent-purple text-white py-3 mt-2 disabled:opacity-50">
+          <Button type="submit" disabled={!effectiveCategory} className="w-full bg-accent-purple text-white py-3 mt-2 disabled:opacity-50">
             Save Subscription
           </Button>
         </form>

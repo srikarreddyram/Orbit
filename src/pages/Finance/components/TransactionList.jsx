@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getIconComponent } from './CategoryConfig'
-import { formatRelativeDate } from '../../../utils/dateHelpers'
+import { formatRelativeDate, formatDate, getToday } from '../../../utils/dateHelpers'
 import { Trash2 } from 'lucide-react'
 import { formatCurrency } from '../../../utils/currencyHelpers'
 
@@ -10,12 +10,12 @@ export default function TransactionList({ transactions, deleteTransaction, categ
   const groupedTransactions = useMemo(() => {
     const groups = {}
     transactions.forEach((t) => {
-      const date = t.logged_at ? t.logged_at.split('T')[0] : new Date().toISOString().split('T')[0]
+      const date = t.date || getToday()
       if (!groups[date]) groups[date] = []
       groups[date].push(t)
     })
     return Object.entries(groups)
-      .sort(([a], [b]) => new Date(b) - new Date(a))
+      .sort(([a], [b]) => (a < b ? 1 : a > b ? -1 : 0))
       .map(([date, txs]) => ({ date, transactions: txs }))
   }, [transactions])
 
@@ -29,14 +29,14 @@ export default function TransactionList({ transactions, deleteTransaction, categ
 
   return (
     <div className="space-y-6 pb-20">
-      {groupedTransactions.map(({ date, transactions: txs }, groupIndex) => (
+      {groupedTransactions.map(({ date, transactions: txs }) => (
         <div key={date}>
           <div className="flex justify-between items-end mb-3 sticky top-14 bg-base/90 backdrop-blur-md py-2 z-10">
             <h3 className="text-[11px] uppercase tracking-widest text-text-muted font-bold">
               {formatRelativeDate(date)}
             </h3>
             <span className="text-[11px] font-mono-numbers text-text-muted">
-              {new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              {formatDate(date, { year: undefined })}
             </span>
           </div>
           <div className="bg-surface/50 border border-border/50 rounded-2xl overflow-hidden shadow-sm">
@@ -44,7 +44,7 @@ export default function TransactionList({ transactions, deleteTransaction, categ
               {txs.map((tx, index) => {
                 // Find dynamic category
                 const catObj = categories.find(c => c.name === tx.category)
-                const color = catObj ? catObj.color : '#94a3b8'
+                const color = catObj ? catObj.color : '#6E6877'
                 const Icon = getIconComponent(catObj ? catObj.icon : 'Package')
                 const isIncome = tx.type === 'income'
 

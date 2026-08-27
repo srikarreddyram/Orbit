@@ -3,17 +3,22 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  server: {
+    // Bind to all interfaces so the dev server is reachable from other
+    // devices (e.g. a phone) on the same local network, not just localhost.
+    host: true,
+  },
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      includeAssets: ['pwa-192x192.png', 'pwa-512x512.png', 'favicon.svg'],
       manifest: {
-        name: 'LifeOS (Orbit)',
+        name: 'Orbit',
         short_name: 'Orbit',
         description: 'Personal life operating system for tasks, workouts, sleep, and more.',
-        theme_color: '#0d0d12',
-        background_color: '#0d0d12',
+        theme_color: '#0B0A0C',
+        background_color: '#0B0A0C',
         display: 'standalone',
         icons: [
           {

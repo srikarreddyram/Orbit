@@ -8,10 +8,9 @@ import toast from 'react-hot-toast'
 export default function AccountsTab({ accounts = [], addAccount, currency = 'USD' }) {
   const [showAddModal, setShowAddModal] = useState(false)
   const [name, setName] = useState('')
-  const [type, setType] = useState('bank')
+  const [type, setType] = useState('checking')
   const [balance, setBalance] = useState('')
-  const [institution, setInstitution] = useState('')
-  const [color, setColor] = useState('#1155cc')
+  const [color, setColor] = useState('#2E3A6B')
 
   const totalAssets = accounts.filter(a => a.balance > 0).reduce((sum, a) => sum + Number(a.balance), 0)
   const totalLiabilities = accounts.filter(a => a.balance < 0).reduce((sum, a) => sum + Math.abs(Number(a.balance)), 0)
@@ -26,16 +25,14 @@ export default function AccountsTab({ accounts = [], addAccount, currency = 'USD
         name,
         type,
         balance: parseFloat(balance) || 0,
-        institution,
         color,
         currency
       })
       setShowAddModal(false)
       setName('')
       setBalance('')
-      setInstitution('')
       toast.success('Account added')
-    } catch (err) {
+    } catch {
       toast.error('Failed to add account')
     }
   }
@@ -90,7 +87,10 @@ export default function AccountsTab({ accounts = [], addAccount, currency = 'USD
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {accounts.map((account) => {
-              const Icon = account.type === 'bank' || account.type === 'savings' ? Building2 : account.type === 'credit' ? CreditCard : Landmark
+              const Icon = account.type === 'checking' || account.type === 'savings' ? Building2
+                : account.type === 'credit' ? CreditCard
+                : account.type === 'cash' ? Wallet
+                : Landmark
               
               return (
                 <div 
@@ -109,7 +109,7 @@ export default function AccountsTab({ accounts = [], addAccount, currency = 'USD
                       </div>
                       <div>
                         <h4 className="font-semibold text-text-primary leading-tight">{account.name}</h4>
-                        <p className="text-xs text-text-muted mt-0.5">{account.institution || account.type}</p>
+                        <p className="text-xs text-text-muted mt-0.5 capitalize">{account.type}</p>
                       </div>
                     </div>
                   </div>
@@ -147,11 +147,12 @@ export default function AccountsTab({ accounts = [], addAccount, currency = 'USD
             <div>
               <label className="text-xs font-semibold text-text-muted uppercase mb-1 block">Type</label>
               <select value={type} onChange={e => setType(e.target.value)} className="input-field cursor-pointer">
-                <option value="bank">Checking</option>
+                <option value="checking">Checking</option>
                 <option value="savings">Savings</option>
                 <option value="credit">Credit Card</option>
                 <option value="investment">Investment</option>
                 <option value="cash">Cash</option>
+                <option value="other">Other</option>
               </select>
             </div>
             <div>
@@ -161,16 +162,6 @@ export default function AccountsTab({ accounts = [], addAccount, currency = 'USD
                 <input type="text" value={color} onChange={e => setColor(e.target.value)} className="input-field flex-1" />
               </div>
             </div>
-          </div>
-          <div>
-             <label className="text-xs font-semibold text-text-muted uppercase mb-1 block">Institution (Optional)</label>
-             <input
-              type="text"
-              value={institution}
-              onChange={e => setInstitution(e.target.value)}
-              placeholder="e.g. JPMorgan Chase"
-              className="input-field"
-            />
           </div>
           <div>
             <label className="text-xs font-semibold text-text-muted uppercase mb-1 block">Current Balance</label>

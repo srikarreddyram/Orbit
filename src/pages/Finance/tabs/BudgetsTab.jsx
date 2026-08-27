@@ -28,7 +28,7 @@ export default function BudgetsTab({
     return budgetLimits.map(limit => {
       // Find the custom category object for color/icon
       const catObj = categories.find(c => c.name === limit.category)
-      const color = catObj ? catObj.color : '#94a3b8'
+      const color = catObj ? catObj.color : '#6E6877'
       const iconName = catObj ? catObj.icon : 'Package'
 
       const spent = transactions
@@ -186,9 +186,9 @@ export default function BudgetsTab({
                     className={`absolute top-0 left-0 h-full rounded-full ${
                       isOver ? 'bg-accent-red' : ''
                     }`}
-                    style={{ 
-                      backgroundColor: isOver ? '#ef4444' : color,
-                      boxShadow: `0 0 10px ${isOver ? '#ef4444' : color}80` 
+                    style={{
+                      backgroundColor: isOver ? '#B91C1C' : color,
+                      boxShadow: `0 0 10px ${isOver ? '#B91C1C' : color}80`
                     }}
                   />
                 </div>

@@ -18,9 +18,9 @@ export default function SpendingChart({ transactions, monthlyBudget, currency = 
 
     // Filter to just this month's expenses
     const thisMonthExpenses = transactions.filter(t => {
-      if (t.type !== 'expense') return false
-      const d = new Date(t.logged_at)
-      return d.getMonth() === month && d.getFullYear() === year
+      if (t.type !== 'expense' || !t.date) return false
+      const [y, m] = t.date.split('-').map(Number)
+      return m - 1 === month && y === year
     })
 
     let cumulative = 0
@@ -30,7 +30,7 @@ export default function SpendingChart({ transactions, monthlyBudget, currency = 
       if (i <= currentDay) {
         // Sum expenses for this specific day
         const dayExpenses = thisMonthExpenses
-          .filter(t => new Date(t.logged_at).getDate() === i)
+          .filter(t => Number(t.date.split('-')[2]) === i)
           .reduce((sum, t) => sum + t.amount, 0)
         
         cumulative += dayExpenses
@@ -49,9 +49,9 @@ export default function SpendingChart({ transactions, monthlyBudget, currency = 
   const isOverBudget = currentSpent > monthlyBudget
   
   // Use a premium purple/blue gradient or red if over budget
-  const gradientColors = isOverBudget 
-    ? { top: '#ef4444', bottom: '#f87171' } 
-    : { top: '#6366f1', bottom: '#8b5cf6' }
+  const gradientColors = isOverBudget
+    ? { top: '#B91C1C', bottom: '#7F1D1D' }
+    : { top: '#7C3AED', bottom: '#8B5CF6' }
 
   return (
     <Card className="overflow-hidden relative p-0 pt-5">
@@ -71,31 +71,31 @@ export default function SpendingChart({ transactions, monthlyBudget, currency = 
                 <stop offset="95%" stopColor={gradientColors.bottom} stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#2A2530" vertical={false} />
             <XAxis 
               dataKey="day" 
-              tick={{ fill: '#6b6b8a', fontSize: 10, fontWeight: 500 }} 
+              tick={{ fill: '#6E6877', fontSize: 10, fontWeight: 500 }} 
               tickLine={false} 
               axisLine={false}
               tickMargin={10}
               minTickGap={20}
             />
             <YAxis 
-              tick={{ fill: '#6b6b8a', fontSize: 10, fontWeight: 500 }} 
+              tick={{ fill: '#6E6877', fontSize: 10, fontWeight: 500 }} 
               tickLine={false} 
               axisLine={false}
               tickFormatter={(val) => `${getCurrencySymbol(currency)}${val}`}
             />
             {monthlyBudget > 0 && (
-              <ReferenceLine 
-                y={monthlyBudget} 
-                stroke="#6b6b8a" 
+              <ReferenceLine
+                y={monthlyBudget}
+                stroke="#6E6877"
                 strokeDasharray="4 4" 
                 strokeOpacity={0.3} 
                 label={{ 
                   position: 'insideTopRight',
                   value: 'Budget', 
-                  fill: '#6b6b8a', 
+                  fill: '#6E6877', 
                   fontSize: 10,
                   offset: 10
                 }} 
@@ -122,7 +122,7 @@ export default function SpendingChart({ transactions, monthlyBudget, currency = 
               fillOpacity={1}
               fill="url(#colorSpent)"
               connectNulls={false}
-              activeDot={{ r: 6, fill: gradientColors.top, stroke: '#12121a', strokeWidth: 4 }}
+              activeDot={{ r: 6, fill: gradientColors.top, stroke: '#17151A', strokeWidth: 4 }}
             />
           </AreaChart>
         </ResponsiveContainer>

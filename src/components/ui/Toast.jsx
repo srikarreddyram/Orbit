@@ -7,26 +7,26 @@ export default function ToastProvider() {
       toastOptions={{
         duration: 3000,
         style: {
-          background: '#111118',
-          color: '#f1f0ff',
-          border: '1px solid #1e1e2e',
-          borderRadius: '12px',
+          background: '#17151A',
+          color: '#EDEAF0',
+          border: '1px solid #FFFFFF0D',
+          borderRadius: '16px',
           padding: '12px 16px',
           fontSize: '14px',
-          fontFamily: 'Geist, system-ui, sans-serif',
-          boxShadow: '0 8px 30px rgba(0, 0, 0, 0.4)',
+          fontFamily: 'Inter, system-ui, sans-serif',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.4), 0 24px 48px -16px rgba(0,0,0,0.6)',
         },
         success: {
           iconTheme: {
-            primary: '#34d399',
-            secondary: '#111118',
+            primary: '#38BDF8',
+            secondary: '#17151A',
           },
           duration: 3000,
         },
         error: {
           iconTheme: {
-            primary: '#f87171',
-            secondary: '#111118',
+            primary: '#B91C1C',
+            secondary: '#17151A',
           },
           duration: 5000,
         },

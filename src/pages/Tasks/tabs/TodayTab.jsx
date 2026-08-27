@@ -1,30 +1,20 @@
+import { AnimatePresence } from 'framer-motion'
+import { CheckCircle2, AlertCircle } from 'lucide-react'
 import TaskItem from '../components/TaskItem'
-import { motion, AnimatePresence } from 'framer-motion'
-import { CheckCircle2 } from 'lucide-react'
 
-export default function TodayTab({ tasks, toggleTask }) {
-  // Filter for today's tasks
-  const todayTasks = tasks.filter(t => {
-    if (!t.due_date) return false
-    const due = new Date(t.due_date)
-    const today = new Date()
-    return due.toDateString() === today.toDateString()
-  })
-
-  const pending = todayTasks.filter(t => t.status !== 'completed')
-  const completed = todayTasks.filter(t => t.status === 'completed')
+export default function TodayTab({ overdueTasks, todayTasks, loggedTasks, onToggle, onEdit, onDelete }) {
+  const isEmpty = overdueTasks.length === 0 && todayTasks.length === 0 && loggedTasks.length === 0
 
   return (
     <div className="space-y-8">
-      {/* Date Header (Things 3 style) */}
       <div className="hidden md:block">
         <h2 className="text-3xl font-bold text-white mb-1">Today</h2>
-        <p className="text-text-muted font-medium flex items-center gap-2">
+        <p className="text-text-muted font-medium">
           {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
         </p>
       </div>
 
-      {pending.length === 0 && completed.length === 0 && (
+      {isEmpty && (
         <div className="py-20 text-center flex flex-col items-center">
           <div className="w-16 h-16 rounded-full bg-surface/50 flex items-center justify-center mb-4">
             <CheckCircle2 size={32} className="text-text-muted" />
@@ -34,24 +24,38 @@ export default function TodayTab({ tasks, toggleTask }) {
         </div>
       )}
 
-      {pending.length > 0 && (
+      {overdueTasks.length > 0 && (
         <div className="space-y-2">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-accent-red uppercase tracking-wider mb-2 ml-1">
+            <AlertCircle size={12} />
+            Overdue
+          </div>
           <AnimatePresence>
-            {pending.map(task => (
-              <TaskItem key={task.id} task={task} toggleTask={toggleTask} />
+            {overdueTasks.map((task) => (
+              <TaskItem key={task.id} task={task} onToggle={onToggle} onEdit={onEdit} onDelete={onDelete} />
             ))}
           </AnimatePresence>
         </div>
       )}
 
-      {completed.length > 0 && (
-        <div className="space-y-2 pt-6 border-t border-white/5">
-          <button className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2 ml-4">
-            Logged
-          </button>
+      {todayTasks.length > 0 && (
+        <div className="space-y-2">
           <AnimatePresence>
-            {completed.map(task => (
-              <TaskItem key={task.id} task={task} toggleTask={toggleTask} />
+            {todayTasks.map((task) => (
+              <TaskItem key={task.id} task={task} onToggle={onToggle} onEdit={onEdit} onDelete={onDelete} />
+            ))}
+          </AnimatePresence>
+        </div>
+      )}
+
+      {loggedTasks.length > 0 && (
+        <div className="space-y-2 pt-6 border-t border-white/5">
+          <div className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2 ml-1">
+            Logged
+          </div>
+          <AnimatePresence>
+            {loggedTasks.map((task) => (
+              <TaskItem key={task.id} task={task} onToggle={onToggle} onEdit={onEdit} onDelete={onDelete} />
             ))}
           </AnimatePresence>
         </div>

@@ -1,24 +1,92 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Inbox, Star, Calendar, CheckSquare, Plus, Search } from 'lucide-react'
+import { Inbox, Star, Calendar, ListChecks, Plus } from 'lucide-react'
+import toast from 'react-hot-toast'
 import useTasks from '../../hooks/useTasks'
-import useAuth from '../../hooks/useAuth'
+import { getToday } from '../../utils/dateHelpers'
 
 import InboxTab from './tabs/InboxTab'
 import TodayTab from './tabs/TodayTab'
+import UpcomingTab from './tabs/UpcomingTab'
+import AllTab from './tabs/AllTab'
 import AddTaskModal from './components/AddTaskModal'
 
 const SIDEBAR_ITEMS = [
-  { id: 'inbox', label: 'Inbox', icon: Inbox, color: '#3b82f6' },
-  { id: 'today', label: 'Today', icon: Star, color: '#f59e0b' },
-  { id: 'upcoming', label: 'Upcoming', icon: Calendar, color: '#ec4899' },
-  { id: 'anytime', label: 'Anytime', icon: CheckSquare, color: '#10b981' },
+  { id: 'today', label: 'Today', icon: Star, color: '#C2872A' },
+  { id: 'upcoming', label: 'Upcoming', icon: Calendar, color: '#9D5C7C' },
+  { id: 'inbox', label: 'Inbox', icon: Inbox, color: '#38BDF8' },
+  { id: 'all', label: 'All', icon: ListChecks, color: '#8B5CF6' },
 ]
 
 export default function Tasks() {
-  const { tasks, isLoading, addTask, toggleTask, deleteTask } = useTasks()
+  const { tasks, isLoading, addTask, updateTask, toggleTask, deleteTask } = useTasks()
   const [activeTab, setActiveTab] = useState('today')
-  const [showAddModal, setShowAddModal] = useState(false)
+  const [editingTask, setEditingTask] = useState(undefined) // undefined = closed, null = new, object = editing
+  const [hiddenIds, setHiddenIds] = useState(() => new Set())
+  const deleteTimers = useRef({})
+
+  const today = getToday()
+
+  const buckets = useMemo(() => {
+    const visible = tasks.filter((t) => !hiddenIds.has(t.id))
+    const open = visible.filter((t) => !t.completed)
+    return {
+      overdueTasks: open.filter((t) => t.due_date && t.due_date < today),
+      todayTasks: open.filter((t) => t.due_date === today),
+      loggedTasks: visible.filter((t) => t.completed && t.completed_at?.startsWith(today)),
+      inboxTasks: open.filter((t) => !t.due_date),
+      upcomingTasks: open.filter((t) => t.due_date && t.due_date > today),
+      allTasks: visible,
+    }
+  }, [tasks, hiddenIds, today])
+
+  const counts = {
+    today: buckets.overdueTasks.length + buckets.todayTasks.length,
+    upcoming: buckets.upcomingTasks.length,
+    inbox: buckets.inboxTasks.length,
+    all: 0,
+  }
+
+  const handleToggle = (task) => {
+    toggleTask({ id: task.id, completed: !task.completed })
+  }
+
+  const handleRequestDelete = (task) => {
+    setHiddenIds((prev) => new Set(prev).add(task.id))
+
+    toast((t) => (
+      <div className="flex items-center gap-3">
+        <span className="text-sm">Task deleted</span>
+        <button
+          onClick={() => {
+            clearTimeout(deleteTimers.current[task.id])
+            delete deleteTimers.current[task.id]
+            setHiddenIds((prev) => {
+              const next = new Set(prev)
+              next.delete(task.id)
+              return next
+            })
+            toast.dismiss(t.id)
+          }}
+          className="text-accent-blue font-semibold text-sm"
+        >
+          Undo
+        </button>
+      </div>
+    ), { duration: 4000 })
+
+    deleteTimers.current[task.id] = setTimeout(() => {
+      deleteTask(task.id).catch(() => {
+        setHiddenIds((prev) => {
+          const next = new Set(prev)
+          next.delete(task.id)
+          return next
+        })
+        toast.error('Failed to delete task')
+      })
+      delete deleteTimers.current[task.id]
+    }, 4000)
+  }
 
   if (isLoading) {
     return (
@@ -28,21 +96,10 @@ export default function Tasks() {
     )
   }
 
-  // Derived state
-  const pendingTasks = tasks.filter(t => t.status !== 'completed')
-  
-  const todayTasks = pendingTasks.filter(t => {
-    if (!t.due_date) return false
-    const due = new Date(t.due_date)
-    const today = new Date()
-    return due.toDateString() === today.toDateString()
-  })
-  
-  const inboxTasks = pendingTasks.filter(t => !t.project_id && !t.due_date)
+  const sharedProps = { onToggle: handleToggle, onEdit: setEditingTask, onDelete: handleRequestDelete }
 
   return (
     <div className="relative min-h-[calc(100vh-100px)] flex flex-col md:flex-row gap-8">
-      
       {/* Sidebar (Desktop) / Top Row (Mobile) */}
       <div className="w-full md:w-64 shrink-0 flex flex-col gap-2">
         <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60 mb-6 hidden md:block">
@@ -53,18 +110,15 @@ export default function Tasks() {
           {SIDEBAR_ITEMS.map((item) => {
             const Icon = item.icon
             const isActive = activeTab === item.id
-            
-            let count = 0
-            if (item.id === 'today') count = todayTasks.length
-            if (item.id === 'inbox') count = inboxTasks.length
+            const count = counts[item.id]
 
             return (
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
                 className={`flex items-center justify-between px-4 py-3 rounded-2xl transition-all whitespace-nowrap md:whitespace-normal shrink-0 group ${
-                  isActive 
-                    ? 'bg-accent-blue/10 border border-accent-blue/20' 
+                  isActive
+                    ? 'bg-accent-blue/10 border border-accent-blue/20'
                     : 'hover:bg-white/[0.02] border border-transparent'
                 }`}
               >
@@ -89,15 +143,11 @@ export default function Tasks() {
 
       {/* Main Content Area */}
       <div className="flex-1 max-w-3xl pb-24 md:pb-12">
-        
         {/* Mobile Header */}
         <div className="md:hidden flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold tracking-tight text-white capitalize">
             {activeTab}
           </h1>
-          <button className="w-10 h-10 rounded-full bg-surface/50 border border-white/5 flex items-center justify-center">
-            <Search size={18} className="text-text-muted" />
-          </button>
         </div>
 
         <AnimatePresence mode="wait">
@@ -108,29 +158,40 @@ export default function Tasks() {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
           >
-            {activeTab === 'today' && <TodayTab tasks={tasks} toggleTask={toggleTask} />}
-            {activeTab === 'inbox' && <InboxTab tasks={tasks} toggleTask={toggleTask} />}
-            {activeTab === 'upcoming' && <div className="text-text-muted py-20 text-center font-semibold">Coming soon...</div>}
-            {activeTab === 'anytime' && <div className="text-text-muted py-20 text-center font-semibold">Coming soon...</div>}
+            {activeTab === 'today' && (
+              <TodayTab
+                overdueTasks={buckets.overdueTasks}
+                todayTasks={buckets.todayTasks}
+                loggedTasks={buckets.loggedTasks}
+                {...sharedProps}
+              />
+            )}
+            {activeTab === 'upcoming' && <UpcomingTab tasks={buckets.upcomingTasks} {...sharedProps} />}
+            {activeTab === 'inbox' && <InboxTab tasks={buckets.inboxTasks} {...sharedProps} />}
+            {activeTab === 'all' && <AllTab tasks={buckets.allTasks} {...sharedProps} />}
           </motion.div>
         </AnimatePresence>
 
-        {/* Floating Action Button (Things 3 style magic button) */}
+        {/* Floating Action Button */}
         <div className="fixed bottom-[120px] md:bottom-12 right-6 md:right-12 z-40">
-          <button 
-            onClick={() => setShowAddModal(true)}
-            className="w-14 h-14 bg-accent-blue text-white rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(59,130,246,0.4)] hover:scale-105 active:scale-95 transition-all"
+          <button
+            onClick={() => setEditingTask(null)}
+            className="w-14 h-14 text-white rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(124,58,237,0.4)] hover:scale-105 active:scale-95 transition-all"
+            style={{ background: 'linear-gradient(135deg, #8B5CF6, #7C3AED)' }}
+            aria-label="Add task"
           >
             <Plus size={24} strokeWidth={3} />
           </button>
         </div>
       </div>
 
-      <AddTaskModal 
-        isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
+      <AddTaskModal
+        isOpen={editingTask !== undefined}
+        onClose={() => setEditingTask(undefined)}
         addTask={addTask}
-        defaultTab={activeTab}
+        updateTask={updateTask}
+        task={editingTask}
+        defaultDueToday={activeTab === 'today'}
       />
     </div>
   )

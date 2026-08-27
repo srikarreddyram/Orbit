@@ -3,27 +3,27 @@ import useTasks from './useTasks'
 import useWorkouts from './useWorkouts'
 import useSleep from './useSleep'
 import useNutrition from './useNutrition'
-import useHabits from './useHabits'
+import useFinance from './useFinance'
 import useAuth from './useAuth'
 import {
   calculateTaskScore,
   calculateWorkoutScore,
   calculateSleepScore,
   calculateCalorieScore,
-  calculateHabitScore,
+  calculateFinanceScore,
   calculateLifeScore,
 } from '../utils/scoreCalculator'
-import { getToday, isThisWeek } from '../utils/dateHelpers'
+import { getToday, isThisWeek, isThisMonth } from '../utils/dateHelpers'
 
 export default function useLifeScore() {
   const { profile } = useAuth()
-  
+
   // Bring in data from all modules
   const { tasks } = useTasks()
   const { workouts } = useWorkouts()
   const { sleepLogs } = useSleep()
   const { meals } = useNutrition()
-  const { habits, completions } = useHabits()
+  const { transactions, budgetLimits } = useFinance()
 
   const scores = useMemo(() => {
     const today = getToday()
@@ -46,11 +46,13 @@ export default function useLifeScore() {
     const caloriesConsumed = todayMeals.reduce((sum, m) => sum + m.calories, 0)
     const calorieScore = calculateCalorieScore(caloriesConsumed, profile?.daily_calorie_goal || 2000)
 
-    // 5. Habits
-    // Check how many of today's habits are completed
-    const activeHabits = habits.length
-    const completedToday = completions.filter(c => c.completed_on === today).length
-    const habitScore = calculateHabitScore(activeHabits, completedToday)
+    // 5. Finance
+    // How this month's spending compares to the total monthly budget across categories
+    const spentThisMonth = transactions
+      .filter(t => t.type === 'expense' && isThisMonth(t.date))
+      .reduce((sum, t) => sum + t.amount, 0)
+    const monthlyBudget = budgetLimits.reduce((sum, b) => sum + b.monthly_limit, 0) || profile?.monthly_budget || 0
+    const financeScore = calculateFinanceScore(spentThisMonth, monthlyBudget)
 
     // 6. Overall
     const overall = calculateLifeScore({
@@ -58,7 +60,7 @@ export default function useLifeScore() {
       workouts: workoutScore,
       sleep: sleepScore,
       calories: calorieScore,
-      habits: habitScore,
+      finance: financeScore,
     }, profile?.lifescore_weights)
 
     return {
@@ -68,10 +70,10 @@ export default function useLifeScore() {
         workouts: workoutScore,
         sleep: sleepScore,
         calories: calorieScore,
-        habits: habitScore,
+        finance: financeScore,
       }
     }
-  }, [tasks, workouts, sleepLogs, meals, habits, completions, profile])
+  }, [tasks, workouts, sleepLogs, meals, transactions, budgetLimits, profile])
 
   return scores
 }

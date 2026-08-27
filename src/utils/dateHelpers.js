@@ -14,10 +14,37 @@ export function getGreeting() {
 }
 
 /**
+ * Parse a value as a local calendar date. A bare "YYYY-MM-DD" string is
+ * constructed from its parts (local midnight) instead of going through
+ * `new Date(string)`, which parses date-only strings as UTC and can shift
+ * the calendar day backward for anyone west of UTC. Anything else (a full
+ * timestamp, a Date) is parsed normally.
+ */
+function toLocalDate(date) {
+  if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    const [y, m, d] = date.split('-').map(Number)
+    return new Date(y, m - 1, d)
+  }
+  return new Date(date)
+}
+
+/**
+ * Format a Date as a local "YYYY-MM-DD" string. Deliberately avoids
+ * `toISOString()`, which converts to UTC first and can land on the wrong
+ * calendar day for any timezone that isn't UTC.
+ */
+function toLocalDateString(d) {
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
+/**
  * Format date to readable string
  */
 export function formatDate(date, options = {}) {
-  const d = new Date(date)
+  const d = toLocalDate(date)
   const defaults = { month: 'short', day: 'numeric', year: 'numeric' }
   return d.toLocaleDateString('en-US', { ...defaults, ...options })
 }
@@ -26,7 +53,7 @@ export function formatDate(date, options = {}) {
  * Format date relative to today
  */
 export function formatRelativeDate(date) {
-  const d = new Date(date)
+  const d = toLocalDate(date)
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   d.setHours(0, 0, 0, 0)
@@ -44,7 +71,7 @@ export function formatRelativeDate(date) {
  * Get today's date as YYYY-MM-DD
  */
 export function getToday() {
-  return new Date().toISOString().split('T')[0]
+  return toLocalDateString(new Date())
 }
 
 /**
@@ -53,7 +80,7 @@ export function getToday() {
 export function getDaysAgo(n) {
   const d = new Date()
   d.setDate(d.getDate() - n)
-  return d.toISOString().split('T')[0]
+  return toLocalDateString(d)
 }
 
 /**
@@ -64,7 +91,7 @@ export function getWeekStart() {
   const day = d.getDay()
   const diff = d.getDate() - day + (day === 0 ? -6 : 1)
   d.setDate(diff)
-  return d.toISOString().split('T')[0]
+  return toLocalDateString(d)
 }
 
 /**
@@ -73,7 +100,7 @@ export function getWeekStart() {
 export function getMonthStart() {
   const d = new Date()
   d.setDate(1)
-  return d.toISOString().split('T')[0]
+  return toLocalDateString(d)
 }
 
 /**
@@ -102,7 +129,7 @@ export function formatTime(date) {
  * Check if a date is today
  */
 export function isToday(date) {
-  const d = new Date(date)
+  const d = toLocalDate(date)
   const today = new Date()
   return d.toDateString() === today.toDateString()
 }
@@ -111,11 +138,20 @@ export function isToday(date) {
  * Check if a date is this week
  */
 export function isThisWeek(date) {
-  const d = new Date(date)
-  const start = new Date(getWeekStart())
+  const d = toLocalDate(date)
+  const start = toLocalDate(getWeekStart())
   const end = new Date(start)
   end.setDate(end.getDate() + 7)
   return d >= start && d < end
+}
+
+/**
+ * Check if a date falls within the current calendar month
+ */
+export function isThisMonth(date) {
+  const d = toLocalDate(date)
+  const now = new Date()
+  return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
 }
 
 /**

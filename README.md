@@ -1,6 +1,6 @@
-# LifeOS (Orbit)
+# Orbit
 
-Orbit is a comprehensive personal life operating system built with React, Vite, TailwindCSS, and Supabase. It tracks tasks, workouts, sleep, nutrition, habits, finances, and mood, synthesizing them into a unified "LifeScore."
+Orbit is a comprehensive personal life operating system built with React, Vite, TailwindCSS, Express, and MongoDB. It tracks tasks, workouts, sleep, nutrition, habits, finances, and mood, synthesizing them into a unified "LifeScore."
 
 ## Features
 - **Dashboard**: High-level overview of your day, including your current LifeScore.
@@ -11,48 +11,68 @@ Orbit is a comprehensive personal life operating system built with React, Vite, 
 - **Finance**: Monitor transactions against budget limits.
 - **Command Palette**: Quickly navigate the app by pressing `Cmd+K` / `Ctrl+K`.
 
+## Architecture
+
+Orbit is split into two apps:
+- `/` — the React + Vite frontend (this directory)
+- `/server` — an Express + MongoDB (Mongoose) API that handles auth (JWT) and all data
+
 ## Getting Started
 
 ### Prerequisites
 - Node.js 18+
-- A [Supabase](https://supabase.com) account
+- A MongoDB instance — either local (via Docker, see below) or a hosted one like [MongoDB Atlas](https://www.mongodb.com/atlas)
 
-### Setup
+### 1. Start MongoDB (local dev)
 
-1. **Install Dependencies**
-   ```bash
-   npm install
-   ```
+```bash
+docker run -d --name orbit-mongo -p 27017:27017 -v orbit-mongo-data:/data/db mongo:7
+```
 
-2. **Configure Supabase**
-   - Create a new project on Supabase.
-   - Go to Project Settings -> API to find your URL and Anon Key.
-   - Create a `.env` file in the root of the project:
-     ```env
-     VITE_SUPABASE_URL=https://your-project.supabase.co
-     VITE_SUPABASE_ANON_KEY=your-anon-key
-     ```
-   
-3. **Initialize Database**
-   - In the Supabase SQL Editor, run the contents of `supabase/schema.sql` to create all tables and policies.
-   - Run the app, create an account using the Login page.
-   - Find your new User ID in the Supabase Auth section.
-   - Open `supabase/seed.sql`, replace `00000000-0000-0000-0000-000000000000` with your User ID, and run the script in the SQL Editor to populate dummy data.
+Or point `MONGODB_URI` at an Atlas connection string instead.
 
-4. **Run Locally**
-   ```bash
-   npm run dev
-   ```
+### 2. Backend API
 
-## Next Steps
-- Connect UI components (which currently use mock data) directly to the generated `useTasks`, `useSleep`, etc., hooks for live database interaction.
-- Adjust LifeScore weights in Settings to personalize scoring.
+```bash
+cd server
+npm install
+cp .env.example .env   # set MONGODB_URI and a real JWT_SECRET
+npm run dev
+```
+
+The API listens on `http://localhost:4000` by default.
+
+### 3. Frontend
+
+From the project root:
+
+```bash
+npm install
+cp .env.example .env   # set VITE_API_URL and VITE_GEMINI_API_KEY
+npm run dev
+```
+
+Visit `http://localhost:5173`, and create an account from the Login page — no separate signup flow needed.
+
+## Environment variables
+
+**Frontend (`.env`)**
+- `VITE_API_URL` — base URL of the backend API (e.g. `http://localhost:4000/api`)
+- `VITE_GEMINI_API_KEY` — used client-side for the AI quick-log assistant; get one from [Google AI Studio](https://aistudio.google.com/)
+
+**Backend (`server/.env`)**
+- `MONGODB_URI` — MongoDB connection string
+- `JWT_SECRET` — long random string used to sign auth tokens
+- `CLIENT_ORIGIN` — frontend origin allowed by CORS
+- `PORT` — API port (default `4000`)
+
+Never commit either `.env` file — both are gitignored, and `.env.example` documents the shape without real secrets.
 
 ## Tech Stack
-- React 18
+- React 19
 - Vite
 - Tailwind CSS v3
-- Supabase (PostgreSQL, Auth, RLS)
+- Express + MongoDB (Mongoose) + JWT auth
 - Zustand (Global State)
 - TanStack React Query (Data Fetching)
 - Framer Motion (Animations)

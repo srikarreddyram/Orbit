@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
-import { Droplet, Flame } from 'lucide-react'
+import { Droplet, Flame, Candy, HeartPulse } from 'lucide-react'
 
-export default function DashboardTab({ data, profile }) {
+export default function DashboardTab({ data, profile, waterGoalGlasses = 8 }) {
   // Use DB targets or fallbacks
   const targetCalories = profile?.daily_calorie_goal || 2500
   const targets = {
@@ -11,13 +11,21 @@ export default function DashboardTab({ data, profile }) {
     fat: Math.round((targetCalories * 0.3) / 9),     // 30% fat
   }
 
-  const { total_calories: cals, total_protein: p, total_carbs: c, total_fat: f, water_ml } = data
+  const {
+    total_calories: cals,
+    total_protein: p,
+    total_carbs: c,
+    total_sugar: sugar,
+    total_fat: f,
+    total_cholesterol: chol,
+    water_ml,
+  } = data
 
   const macroData = useMemo(() => [
-    { name: 'Protein', value: p, color: '#f59e0b' },
-    { name: 'Carbs', value: c, color: '#34d399' },
-    { name: 'Fat', value: f, color: '#60a5fa' },
-    { name: 'Remaining', value: Math.max(0, targetCalories - cals), color: '#1e1e2e' }
+    { name: 'Protein', value: p, color: '#C2872A' },
+    { name: 'Carbs', value: c, color: '#2DD4BF' },
+    { name: 'Fat', value: f, color: '#38BDF8' },
+    { name: 'Remaining', value: Math.max(0, targetCalories - cals), color: '#2A2530' }
   ], [p, c, f, cals, targetCalories])
 
   return (
@@ -62,9 +70,9 @@ export default function DashboardTab({ data, profile }) {
         {/* Macro Bars */}
         <div className="w-full grid grid-cols-3 gap-6 mt-8">
           {[
-            { label: 'Protein', spent: p, target: targets.protein, color: '#f59e0b' },
-            { label: 'Carbs', spent: c, target: targets.carbs, color: '#34d399' },
-            { label: 'Fat', spent: f, target: targets.fat, color: '#60a5fa' },
+            { label: 'Protein', spent: p, target: targets.protein, color: '#C2872A' },
+            { label: 'Carbs', spent: c, target: targets.carbs, color: '#2DD4BF' },
+            { label: 'Fat', spent: f, target: targets.fat, color: '#38BDF8' },
           ].map(macro => {
             const pct = Math.min((macro.spent / macro.target) * 100, 100)
             return (
@@ -85,6 +93,29 @@ export default function DashboardTab({ data, profile }) {
         </div>
       </div>
 
+      {/* Sugar / Cholesterol — tracked separately from the calorie pie since
+          sugar is a subset of carbs and cholesterol carries no calories */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-surface/30 border border-white/5 rounded-3xl p-5 backdrop-blur-md flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-cursed-purple/10 flex items-center justify-center border border-cursed-purple/20 shrink-0">
+            <Candy size={20} className="text-cursed-purple" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs text-text-muted uppercase tracking-wider font-semibold">Sugar</p>
+            <p className="text-xl font-bold font-mono-numbers text-text-primary">{sugar}<span className="text-sm text-text-muted font-sans font-normal ml-1">g</span></p>
+          </div>
+        </div>
+        <div className="bg-surface/30 border border-white/5 rounded-3xl p-5 backdrop-blur-md flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-blood/10 flex items-center justify-center border border-blood/20 shrink-0">
+            <HeartPulse size={20} className="text-blood" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs text-text-muted uppercase tracking-wider font-semibold">Cholesterol</p>
+            <p className="text-xl font-bold font-mono-numbers text-text-primary">{chol}<span className="text-sm text-text-muted font-sans font-normal ml-1">mg</span></p>
+          </div>
+        </div>
+      </div>
+
       {/* Water Tracker */}
       <div className="bg-surface/30 border border-white/5 rounded-3xl p-6 backdrop-blur-md flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -93,7 +124,7 @@ export default function DashboardTab({ data, profile }) {
           </div>
           <div>
             <h3 className="font-bold text-text-primary text-lg">Hydration</h3>
-            <p className="text-sm text-text-muted">Daily Goal: 3000 ml</p>
+            <p className="text-sm text-text-muted">Daily Goal: {waterGoalGlasses * 250} ml</p>
           </div>
         </div>
         <div className="text-right">

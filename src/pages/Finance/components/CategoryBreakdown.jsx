@@ -19,7 +19,7 @@ export default function CategoryBreakdown({ transactions, categories = [], curre
     return Object.entries(spending)
       .map(([cat, amount]) => {
         const catObj = categories.find(c => c.name === cat)
-        const color = catObj ? catObj.color : '#94a3b8'
+        const color = catObj ? catObj.color : '#6E6877'
         const iconName = catObj ? catObj.icon : 'Package'
 
         return {

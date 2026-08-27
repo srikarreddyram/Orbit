@@ -1,5 +1,4 @@
 import { Outlet } from 'react-router-dom'
-import { Plus } from 'lucide-react'
 import Sidebar from './Sidebar'
 import BottomNav from './BottomNav'
 import Header from './Header'
@@ -12,7 +11,7 @@ import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
 
 export default function Layout() {
-  const { sidebarCollapsed, openQuickAdd } = useStore()
+  const { sidebarCollapsed } = useStore()
   const [isDesktop, setIsDesktop] = useState(
     typeof window !== 'undefined' ? window.innerWidth >= 768 : false
   )

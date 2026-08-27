@@ -4,6 +4,7 @@ const badgeColors = {
   amber: 'bg-accent-amber/15 text-accent-amber',
   red: 'bg-accent-red/15 text-accent-red',
   blue: 'bg-accent-blue/15 text-accent-blue',
+  pink: 'bg-accent-pink/15 text-accent-pink',
   muted: 'bg-surface text-text-secondary',
 }
 
@@ -32,6 +33,7 @@ export default function Badge({ children, color = 'purple', dot = false, classNa
             color === 'amber' ? 'bg-accent-amber' :
             color === 'red' ? 'bg-accent-red' :
             color === 'blue' ? 'bg-accent-blue' :
+            color === 'pink' ? 'bg-accent-pink' :
             'bg-text-muted'
           }`}
         />
@@ -49,4 +51,25 @@ export function PriorityBadge({ priority }) {
 export function CategoryBadge({ category }) {
   const color = categoryColors[category] || 'muted'
   return <Badge color={color} dot>{category}</Badge>
+}
+
+const categoryChipColors = {
+  work: 'bg-category-indigo',
+  personal: 'bg-category-teal',
+  health: 'bg-category-moss',
+  finance: 'bg-category-umber',
+  other: 'bg-card-raised',
+}
+
+/**
+ * Full-opacity category chip — worn/solid fill per the v3 design system,
+ * distinct from the translucent semantic Badge above.
+ */
+export function CategoryChip({ category, icon: Icon, children }) {
+  return (
+    <span className={`category-chip ${categoryChipColors[category] || categoryChipColors.other}`}>
+      {Icon && <Icon size={12} className="text-cursed-purple" />}
+      {children || category}
+    </span>
+  )
 }

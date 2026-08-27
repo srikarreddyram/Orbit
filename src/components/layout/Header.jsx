@@ -30,7 +30,7 @@ export default function Header() {
         {/* Quick add button */}
         <button
           onClick={() => openQuickAdd()}
-          className="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-purple/10 text-accent-purple text-sm font-medium hover:bg-accent-purple/20 transition-colors"
+          className="hidden md:flex items-center gap-2 px-4 py-2 rounded-pill bg-cursed-purple/10 text-cursed-purple text-sm font-medium hover:bg-cursed-purple/20 active:scale-[0.98] transition-all duration-150"
           aria-label="Quick add"
         >
           <Plus size={16} />

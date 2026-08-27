@@ -5,7 +5,6 @@ import toast from 'react-hot-toast'
 import { parseOmniLog } from '../lib/ai'
 
 import useFinance from '../hooks/useFinance'
-import useMood from '../hooks/useMood'
 import useNutrition from '../hooks/useNutrition'
 import useWorkouts from '../hooks/useWorkouts'
 
@@ -16,7 +15,6 @@ export default function GlobalAIChat() {
   const [lastAction, setLastAction] = useState(null)
 
   const { addTransaction } = useFinance()
-  const { logMood } = useMood()
   const { logMeal } = useNutrition()
   const { logWorkout } = useWorkouts()
 
@@ -44,17 +42,7 @@ export default function GlobalAIChat() {
         actionsTaken.push(`Logged $${result.expense.amount} expense`)
       }
 
-      // 2. Mood
-      if (result.mood) {
-        await logMood({
-          mood: result.mood.mood,
-          energy: result.mood.energy || 3,
-          note: result.mood.note || ''
-        })
-        actionsTaken.push('Logged mood')
-      }
-
-      // 3. Meals
+      // 2. Meals
       if (result.meals && result.meals.length > 0) {
         for (const meal of result.meals) {
           await logMeal({
@@ -63,13 +51,15 @@ export default function GlobalAIChat() {
             calories: meal.calories,
             protein_g: meal.protein_g,
             carbs_g: meal.carbs_g,
-            fat_g: meal.fat_g
+            sugar_g: meal.sugar_g,
+            fat_g: meal.fat_g,
+            cholesterol_mg: meal.cholesterol_mg
           })
         }
         actionsTaken.push(`Logged ${result.meals.length} food items`)
       }
 
-      // 4. Workout
+      // 3. Workout
       if (result.workout) {
         await logWorkout({
           workout: {
@@ -154,7 +144,7 @@ export default function GlobalAIChat() {
 
               <div className="p-6">
                 <p className="text-sm text-text-secondary mb-6 leading-relaxed">
-                  Tell me what you just did. I can log expenses, moods, meals, and workouts simultaneously.
+                  Tell me what you just did. I can log expenses, meals, and workouts simultaneously.
                 </p>
 
                 <form onSubmit={handleSubmit} className="relative">

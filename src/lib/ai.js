@@ -79,7 +79,9 @@ export async function parseMealLog(text, customFoods = []) {
       "calories": number,
       "protein_g": number,
       "carbs_g": number,
-      "fat_g": number
+      "sugar_g": number,
+      "fat_g": number,
+      "cholesterol_mg": number
     }
   ]
   Do not return markdown, just valid JSON array.
@@ -113,18 +115,16 @@ export async function parseOmniLog(text) {
   You are an expert personal life assistant. The user just typed a free-form message.
   User Input: "${text}"
 
-  Parse this input and extract any relevant data for these 4 categories:
+  Parse this input and extract any relevant data for these 3 categories:
   1. Expense: Did they spend money? (extract amount, category from: food, transport, entertainment, bills, health, shopping, other, and a short note)
-  2. Mood: Did they mention how they feel? (extract mood 1-5, energy 1-5, and a note)
-  3. Meal: Did they eat something? (extract food_name, calories, protein_g, carbs_g, fat_g)
-  4. Workout: Did they exercise? (extract type from: cardio, strength, yoga, sports, other, and duration_minutes)
+  2. Meal: Did they eat something? (extract food_name, calories, protein_g, carbs_g, sugar_g, fat_g, cholesterol_mg)
+  3. Workout: Did they exercise? (extract type from: cardio, strength, yoga, sports, other, and duration_minutes)
 
   Return a JSON object. If a category wasn't mentioned, leave it null.
   Strict JSON format:
   {
     "expense": { "amount": number, "category": "string", "note": "string" } | null,
-    "mood": { "mood": number, "energy": number, "note": "string" } | null,
-    "meals": [ { "food_name": "string", "calories": number, "protein_g": number, "carbs_g": number, "fat_g": number } ] | [],
+    "meals": [ { "food_name": "string", "calories": number, "protein_g": number, "carbs_g": number, "sugar_g": number, "fat_g": number, "cholesterol_mg": number } ] | [],
     "workout": { "type": "string", "duration_minutes": number, "notes": "string" } | null
   }
   Do not return markdown, just valid JSON.

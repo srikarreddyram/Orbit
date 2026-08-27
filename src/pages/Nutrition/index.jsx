@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Apple, LayoutDashboard, Utensils, Search } from 'lucide-react'
+import { LayoutDashboard, Utensils, Search } from 'lucide-react'
 import useNutrition from '../../hooks/useNutrition'
 import useAuth from '../../hooks/useAuth'
+import { getToday } from '../../utils/dateHelpers'
 
 import DashboardTab from './tabs/DashboardTab'
 import LogTab from './tabs/LogTab'
@@ -17,8 +18,9 @@ const TABS = [
 export default function Nutrition() {
   const { meals, waterLog, isLoading, logMeal, updateWater } = useNutrition()
   const { profile } = useAuth()
-  
+
   const [activeTab, setActiveTab] = useState('dashboard')
+  const [pendingMealType, setPendingMealType] = useState(null)
 
   if (isLoading) {
     return (
@@ -29,16 +31,26 @@ export default function Nutrition() {
   }
 
   // Get current date's data
-  const todayStr = new Date().toISOString().split('T')[0]
+  const todayStr = getToday()
   const todayMeals = meals.filter(m => m.logged_at === todayStr)
-  
+  const waterGlasses = waterLog?.glasses || 0
+  const waterGoalGlasses = profile?.daily_water_goal || 8
+
   const todayData = {
     meals: todayMeals,
-    water_ml: waterLog ? (waterLog.glasses * 250) : 0,
+    water_ml: waterGlasses * 250,
+    water_glasses: waterGlasses,
     total_calories: todayMeals.reduce((sum, m) => sum + (m.calories || 0), 0),
     total_protein: todayMeals.reduce((sum, m) => sum + Number(m.protein_g || 0), 0),
     total_carbs: todayMeals.reduce((sum, m) => sum + Number(m.carbs_g || 0), 0),
+    total_sugar: todayMeals.reduce((sum, m) => sum + Number(m.sugar_g || 0), 0),
     total_fat: todayMeals.reduce((sum, m) => sum + Number(m.fat_g || 0), 0),
+    total_cholesterol: todayMeals.reduce((sum, m) => sum + Number(m.cholesterol_mg || 0), 0),
+  }
+
+  const handleLogFood = (mealType) => {
+    setPendingMealType(mealType)
+    setActiveTab('search')
   }
 
   return (
@@ -59,7 +71,7 @@ export default function Nutrition() {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => { setActiveTab(tab.id); setPendingMealType(null) }}
                 className={`flex-1 flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all relative whitespace-nowrap
                   ${isActive ? 'text-white' : 'text-text-muted hover:text-text-secondary'}
                 `}
@@ -89,9 +101,20 @@ export default function Nutrition() {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
           >
-            {activeTab === 'dashboard' && <DashboardTab data={todayData} profile={profile} />}
-            {activeTab === 'log' && <LogTab data={todayData} addMeal={logMeal} updateWater={updateWater} />}
-            {activeTab === 'search' && <SearchTab addMeal={logMeal} />}
+            {activeTab === 'dashboard' && (
+              <DashboardTab data={todayData} profile={profile} waterGoalGlasses={waterGoalGlasses} />
+            )}
+            {activeTab === 'log' && (
+              <LogTab
+                data={todayData}
+                updateWater={updateWater}
+                waterGoalGlasses={waterGoalGlasses}
+                onLogFood={handleLogFood}
+              />
+            )}
+            {activeTab === 'search' && (
+              <SearchTab addMeal={logMeal} mealType={pendingMealType} />
+            )}
           </motion.div>
         </AnimatePresence>
       </div>

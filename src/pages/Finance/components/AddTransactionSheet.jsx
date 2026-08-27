@@ -1,36 +1,36 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Modal from '../../../components/ui/Modal'
 import Button from '../../../components/ui/Button'
 import { getIconComponent } from './CategoryConfig'
 import toast from 'react-hot-toast'
 import { getCurrencySymbol } from '../../../utils/currencyHelpers'
-import { Plus } from 'lucide-react'
+import { getToday } from '../../../utils/dateHelpers'
+import { Plus, Calendar } from 'lucide-react'
+
+function yesterday() {
+  const d = new Date()
+  d.setDate(d.getDate() - 1)
+  return d.toISOString().split('T')[0]
+}
 
 export default function AddTransactionSheet({ isOpen, onClose, addTransaction, categories = [], onManageCategories, currency = 'USD' }) {
   const [txType, setTxType] = useState('expense')
   const [txAmount, setTxAmount] = useState('')
   const [txCategory, setTxCategory] = useState('')
   const [txNote, setTxNote] = useState('')
+  const [txDate, setTxDate] = useState(getToday())
+  const [showDatePicker, setShowDatePicker] = useState(false)
 
-  // Filter categories by type
+  // Filter categories by type, falling back to the first available option
+  // whenever the explicitly-selected one isn't valid for the current type.
   const availableCategories = categories.filter(c => c.type === txType)
-
-  // Ensure a valid category is selected when type changes
-  useEffect(() => {
-    if (availableCategories.length > 0) {
-      if (!txCategory || !availableCategories.find(c => c.name === txCategory)) {
-        setTxCategory(availableCategories[0].name)
-      }
-    } else {
-      setTxCategory('')
-    }
-  }, [txType, availableCategories, txCategory])
+  const effectiveCategory = availableCategories.find(c => c.name === txCategory)?.name || availableCategories[0]?.name || ''
 
   const handleAdd = async (e) => {
     e.preventDefault()
     if (!txAmount || parseFloat(txAmount) <= 0) return
-    if (!txCategory) {
+    if (!effectiveCategory) {
       toast.error('Please create a category first')
       return
     }
@@ -38,19 +38,20 @@ export default function AddTransactionSheet({ isOpen, onClose, addTransaction, c
     const tx = {
       type: txType,
       amount: parseFloat(txAmount),
-      category: txCategory,
+      category: effectiveCategory,
       note: txNote,
-      logged_at: new Date().toISOString(),
+      date: txDate,
     }
 
     try {
       await addTransaction(tx)
       setTxAmount('')
       setTxNote('')
+      setTxDate(getToday())
       // Keep category and type as they were for quick multi-add
       onClose()
       toast.success(`${txType === 'income' ? 'Income' : 'Expense'} logged!`)
-    } catch (err) {
+    } catch {
       toast.error('Failed to log transaction')
     }
   }
@@ -119,7 +120,7 @@ export default function AddTransactionSheet({ isOpen, onClose, addTransaction, c
           <div className="grid grid-cols-4 gap-3 max-h-48 overflow-y-auto hide-scrollbar p-1 -m-1">
             {availableCategories.map((cat) => {
               const Icon = getIconComponent(cat.icon)
-              const isSelected = txCategory === cat.name
+              const isSelected = effectiveCategory === cat.name
               return (
                 <button
                   key={cat.id}
@@ -164,6 +165,51 @@ export default function AddTransactionSheet({ isOpen, onClose, addTransaction, c
           </div>
         </div>
 
+        {/* Date */}
+        <div>
+          <label className="text-xs uppercase tracking-wider text-text-muted font-bold block mb-2">Date</label>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { label: 'Today', value: getToday() },
+              { label: 'Yesterday', value: yesterday() },
+            ].map((opt) => (
+              <button
+                key={opt.label}
+                type="button"
+                onClick={() => { setTxDate(opt.value); setShowDatePicker(false) }}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  txDate === opt.value && !showDatePicker
+                    ? 'bg-accent-purple text-white'
+                    : 'bg-surface text-text-secondary hover:text-text-primary'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setShowDatePicker(true)}
+              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                showDatePicker || (txDate !== getToday() && txDate !== yesterday())
+                  ? 'bg-accent-purple text-white'
+                  : 'bg-surface text-text-secondary hover:text-text-primary'
+              }`}
+            >
+              <Calendar size={13} />
+              {showDatePicker || (txDate !== getToday() && txDate !== yesterday()) ? txDate : 'Custom'}
+            </button>
+          </div>
+          {showDatePicker && (
+            <input
+              type="date"
+              value={txDate}
+              max={getToday()}
+              onChange={(e) => setTxDate(e.target.value || getToday())}
+              className="input-field mt-2 text-sm"
+            />
+          )}
+        </div>
+
         {/* Note */}
         <div>
            <label className="text-xs uppercase tracking-wider text-text-muted font-bold block mb-2">Note (Optional)</label>
@@ -178,10 +224,10 @@ export default function AddTransactionSheet({ isOpen, onClose, addTransaction, c
 
         <Button 
           type="submit" 
-          disabled={!txCategory}
+          disabled={!effectiveCategory}
           className="w-full py-4 text-base font-bold shadow-lg disabled:opacity-50"
           style={{
-            backgroundColor: txType === 'income' ? '#10b981' : '#6366f1',
+            backgroundColor: txType === 'income' ? '#38BDF8' : '#7C3AED',
             color: '#fff'
           }}
         >

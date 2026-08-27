@@ -4,7 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Geist font loaded via index.html CDN link */
+/* Inter + Barlow Condensed loaded via index.html <link> */
 
 @layer base {
   * {
@@ -36,17 +36,18 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #1e1e2e;
+    background: #2A2530;
     border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #2a2a3e;
+    background: #3A3340;
   }
 
-  /* Number styling */
+  /* Stat numerals — condensed display face, not mono; grittier terminals than Inter Tight */
   .font-mono-numbers {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: '"Barlow Condensed"', Oswald, system-ui, sans-serif;
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
   }
 
@@ -70,30 +71,49 @@
 @layer components {
   /* Card component base */
   .card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid #1e1e2e;
-    border-radius: 16px;
-    transition: all 150ms ease;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.012));
+    border: 1px solid #FFFFFF0D;
+    border-radius: 20px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 28px -14px rgba(0, 0, 0, 0.7);
+    transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
   }
 
   .card:hover {
-    border-color: rgba(124, 106, 247, 0.2);
-    box-shadow: inset 0 0 20px rgba(124, 106, 247, 0.03);
+    border-color: rgba(124, 58, 237, 0.3);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 28px -14px rgba(0, 0, 0, 0.7), inset 0 0 24px rgba(124, 58, 237, 0.05);
+  }
+
+  /* Ink-grain texture — hero sections only */
+  .grain {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .grain::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-blend-mode: overlay;
+    opacity: 0.2;
+    pointer-events: none;
+    border-radius: inherit;
   }
 
   /* Glassmorphism */
   .glass {
-    background: rgba(17, 17, 24, 0.8);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(30, 30, 46, 0.5);
+    background: rgba(11, 10, 12, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
   }
 
   /* Skeleton loader base */
   .skeleton {
     position: relative;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.04);
     border-radius: 8px;
   }
 
@@ -104,50 +124,62 @@
     background: linear-gradient(
       90deg,
       transparent,
-      rgba(255, 255, 255, 0.04),
+      rgba(255, 255, 255, 0.03),
       transparent
     );
     animation: shimmer 2s linear infinite;
   }
 
-  /* Button variants */
+  /* Button variants — pill radius, solid cursed-purple fill */
   .btn-primary {
-    @apply bg-accent-purple text-white font-medium rounded-xl px-4 py-2.5;
-    @apply hover:brightness-110 active:scale-[0.98] transition-all duration-150;
+    @apply text-white font-medium rounded-pill px-5 py-2.5;
+    @apply active:scale-[0.98] transition-all duration-150;
+    background: #7C3AED;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1) inset, 0 8px 20px -6px rgba(124, 58, 237, 0.4);
+  }
+
+  .btn-primary:hover {
+    background: #8B5CF6;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1) inset, 0 0 0 1px rgba(124,58,237,0.4), 0 10px 26px -4px rgba(124, 58, 237, 0.55);
   }
 
   .btn-secondary {
-    @apply bg-surface border border-border text-text-primary font-medium rounded-xl px-4 py-2.5;
-    @apply hover:bg-elevated hover:border-accent-purple/30 active:scale-[0.98] transition-all duration-150;
+    @apply bg-transparent border border-border text-text-primary font-medium rounded-pill px-5 py-2.5;
+    @apply hover:border-cursed-purple/50 hover:text-cursed-purple active:scale-[0.98] transition-all duration-150;
   }
 
   .btn-ghost {
-    @apply bg-transparent text-text-secondary font-medium rounded-xl px-4 py-2.5;
+    @apply bg-transparent text-text-secondary font-medium rounded-pill px-5 py-2.5;
     @apply hover:bg-surface hover:text-text-primary active:scale-[0.98] transition-all duration-150;
   }
 
   .btn-danger {
-    @apply bg-accent-red/10 text-accent-red border border-accent-red/20 font-medium rounded-xl px-4 py-2.5;
-    @apply hover:bg-accent-red/20 active:scale-[0.98] transition-all duration-150;
+    @apply bg-transparent text-blood border border-blood/40 font-medium rounded-pill px-5 py-2.5;
+    @apply hover:bg-blood/10 active:scale-[0.98] transition-all duration-150;
   }
 
   /* Input styling */
   .input-field {
     @apply w-full bg-surface border border-border rounded-xl px-4 py-2.5 text-text-primary;
-    @apply placeholder:text-text-muted focus:outline-none focus:border-accent-purple/50;
-    @apply focus:ring-1 focus:ring-accent-purple/20 transition-all duration-150;
+    @apply placeholder:text-text-muted focus:outline-none focus:border-cursed-purple/50;
+    @apply focus:ring-2 focus:ring-cursed-purple/15 transition-all duration-150;
   }
 
-  /* Badge */
+  /* Badge — semantic tints stay translucent */
   .badge {
-    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium;
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-pill text-xs font-medium;
+  }
+
+  /* Category chip — worn, full-opacity fill per v3 spec (not a translucent tint) */
+  .category-chip {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-pill text-xs font-medium text-text-primary;
   }
 
   /* FAB */
   .fab {
     @apply fixed z-50 flex items-center justify-center w-14 h-14 rounded-full;
-    @apply bg-accent-purple text-white shadow-lg shadow-accent-purple/25;
-    @apply hover:shadow-accent-purple/40 hover:scale-105 active:scale-95;
+    @apply bg-cursed-purple text-white shadow-lg shadow-cursed-purple/25;
+    @apply hover:shadow-cursed-purple/40 hover:scale-105 active:scale-95;
     @apply transition-all duration-200;
     bottom: 24px;
     right: 24px;
@@ -164,24 +196,28 @@
   /* Gradient text */
   .text-gradient {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, #7c6af7, #60a5fa);
+    background-image: linear-gradient(135deg, #A78BFA, #7C3AED);
   }
 
   /* Glow effects */
   .glow-purple {
-    box-shadow: 0 0 20px rgba(124, 106, 247, 0.15);
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.2);
   }
 
   .glow-green {
-    box-shadow: 0 0 20px rgba(52, 211, 153, 0.15);
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
   }
 
   .glow-amber {
-    box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
+    box-shadow: 0 0 20px rgba(194, 135, 42, 0.2);
   }
 
   .glow-red {
-    box-shadow: 0 0 20px rgba(248, 113, 113, 0.15);
+    box-shadow: 0 0 20px rgba(185, 28, 28, 0.25);
+  }
+
+  .glow-pink {
+    box-shadow: 0 0 20px rgba(157, 92, 124, 0.2);
   }
 
   /* Hide scrollbar */

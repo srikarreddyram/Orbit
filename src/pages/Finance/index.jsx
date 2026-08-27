@@ -36,11 +36,11 @@ export default function Finance() {
   const monthlyBudget = profile?.monthly_budget || 2500
   const currency = profile?.currency || 'USD'
 
-  // Calculate Totals for Dashboard
-  const totals = useMemo(() => {
-    const income = transactions.filter((t) => t.type === 'income').reduce((sum, t) => sum + t.amount, 0)
-    const expenses = transactions.filter((t) => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0)
-    return { income, expenses, net: income - expenses }
+  // Transactions scoped to the current calendar month, for "This Month" widgets
+  const monthTransactions = useMemo(() => {
+    const now = new Date()
+    const prefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+    return transactions.filter((t) => t.date?.startsWith(prefix))
   }, [transactions])
 
   if (isLoading) {
@@ -106,10 +106,10 @@ export default function Finance() {
             transition={{ duration: 0.2 }}
           >
             {activeTab === 'dashboard' && (
-              <DashboardTab 
-                totals={totals} 
-                monthlyBudget={monthlyBudget} 
-                transactions={transactions}
+              <DashboardTab
+                monthTransactions={monthTransactions}
+                monthlyBudget={monthlyBudget}
+                accounts={accounts}
                 categories={categories}
                 currency={currency}
               />

@@ -1,8 +1,8 @@
 /**
  * LifeScore Calculator
- * 
+ *
  * Computes a 0–100 score based on 5 weighted components:
- * Tasks (20%), Workouts (20%), Sleep (20%), Calories (20%), Habits (20%)
+ * Tasks (20%), Workouts (20%), Sleep (20%), Calories (20%), Finance (20%)
  */
 
 /**
@@ -56,12 +56,19 @@ export function calculateCalorieScore(caloriesConsumed, calorieGoal) {
 }
 
 /**
- * Calculate habit score (0-100)
- * % of today's habits completed
+ * Calculate finance score (0-100)
+ * Staying at or under the monthly budget = full points, degrades the further over it goes
  */
-export function calculateHabitScore(todayHabits, completedCount) {
-  if (!todayHabits || todayHabits === 0) return 100
-  return Math.round((completedCount / todayHabits) * 100)
+export function calculateFinanceScore(spentThisMonth, monthlyBudget) {
+  if (!monthlyBudget || monthlyBudget === 0) return 100
+  if (spentThisMonth <= monthlyBudget) return 100
+
+  const overRatio = (spentThisMonth - monthlyBudget) / monthlyBudget
+  if (overRatio <= 0.1) return 80
+  if (overRatio <= 0.25) return 60
+  if (overRatio <= 0.5) return 40
+  if (overRatio <= 1) return 20
+  return 0
 }
 
 /**
@@ -73,18 +80,21 @@ export function calculateLifeScore(components, weights = null) {
     workouts: 20,
     sleep: 20,
     calories: 20,
-    habits: 20,
+    finance: 20,
   }
 
-  const w = weights || defaultWeights
-  const totalWeight = Object.values(w).reduce((a, b) => a + b, 0)
+  // Guard against stale stored weight objects (e.g. an old `habits` key from
+  // before Finance replaced Habits as the 5th component) — only the known
+  // component keys count toward the total, anything else is ignored.
+  const w = { ...defaultWeights, ...weights }
+  const totalWeight = w.tasks + w.workouts + w.sleep + w.calories + w.finance
 
   const score =
     (components.tasks * w.tasks +
       components.workouts * w.workouts +
       components.sleep * w.sleep +
       components.calories * w.calories +
-      components.habits * w.habits) / totalWeight
+      components.finance * w.finance) / totalWeight
 
   return Math.round(Math.max(0, Math.min(100, score)))
 }
@@ -93,9 +103,9 @@ export function calculateLifeScore(components, weights = null) {
  * Get score color based on value
  */
 export function getScoreColor(score) {
-  if (score >= 70) return '#34d399' // Green
-  if (score >= 40) return '#f59e0b' // Amber
-  return '#f87171' // Red
+  if (score >= 70) return '#38BDF8' // Cursed blue — domain expansion
+  if (score >= 40) return '#7C3AED' // Cursed purple — steady
+  return '#B91C1C' // Blood red — danger
 }
 
 /**

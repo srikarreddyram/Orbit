@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { X, CheckSquare, Dumbbell, Moon, UtensilsCrossed, Wallet, Target, Smile } from 'lucide-react'
+import { X, CheckSquare, Dumbbell, Moon, UtensilsCrossed, Wallet } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
 
@@ -9,8 +9,6 @@ const addOptions = [
   { id: 'sleep', label: 'Sleep', icon: Moon, path: '/sleep', color: 'text-accent-blue', bg: 'bg-accent-blue/10' },
   { id: 'meal', label: 'Meal', icon: UtensilsCrossed, path: '/nutrition', color: 'text-accent-green', bg: 'bg-accent-green/10' },
   { id: 'transaction', label: 'Expense', icon: Wallet, path: '/finance', color: 'text-accent-amber', bg: 'bg-accent-amber/10' },
-  { id: 'habit', label: 'Habit', icon: Target, path: '/habits', color: 'text-accent-amber', bg: 'bg-accent-amber/10' },
-  { id: 'mood', label: 'Mood', icon: Smile, path: '/mood', color: 'text-accent-pink', bg: 'bg-accent-pink/10' },
 ]
 
 export default function QuickAddModal() {

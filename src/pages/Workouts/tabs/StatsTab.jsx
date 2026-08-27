@@ -70,9 +70,9 @@ export default function StatsTab({ workouts, prs }) {
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={weeklyVolume}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" vertical={false} />
-              <XAxis dataKey="week" tick={{ fill: '#6b6b8a', fontSize: 11 }} tickLine={false} axisLine={false} />
-              <YAxis tick={{ fill: '#6b6b8a', fontSize: 11 }} tickLine={false} axisLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#2A2530" vertical={false} />
+              <XAxis dataKey="week" tick={{ fill: '#6E6877', fontSize: 11 }} tickLine={false} axisLine={false} />
+              <YAxis tick={{ fill: '#6E6877', fontSize: 11 }} tickLine={false} axisLine={false} />
               <Tooltip
                 cursor={{ fill: 'rgba(255,255,255,0.02)' }}
                 content={({ active, payload }) =>
@@ -83,7 +83,7 @@ export default function StatsTab({ workouts, prs }) {
                   ) : null
                 }
               />
-              <Bar dataKey="volume" fill="#7c6af7" radius={[6, 6, 0, 0]} maxBarSize={40} />
+              <Bar dataKey="volume" fill="#7C3AED" radius={[6, 6, 0, 0]} maxBarSize={40} />
             </BarChart>
           </ResponsiveContainer>
         </div>

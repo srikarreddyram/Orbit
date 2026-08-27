@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Home, CheckSquare, Dumbbell, Moon, UtensilsCrossed, Wallet, Target, Smile, Settings, Plus } from 'lucide-react'
+import { Search, Home, CheckSquare, Dumbbell, Moon, UtensilsCrossed, Wallet, Settings, Plus } from 'lucide-react'
 import useStore from '../../store/useStore'
 
 const pages = [
@@ -11,8 +11,6 @@ const pages = [
   { name: 'Sleep', path: '/sleep', icon: Moon },
   { name: 'Nutrition', path: '/nutrition', icon: UtensilsCrossed },
   { name: 'Finance', path: '/finance', icon: Wallet },
-  { name: 'Habits', path: '/habits', icon: Target },
-  { name: 'Mood', path: '/mood', icon: Smile },
   { name: 'Settings', path: '/settings', icon: Settings },
 ]
 
@@ -98,11 +96,11 @@ export default function CommandPalette() {
 
           {/* Palette */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: -20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -20 }}
-            transition={{ duration: 0.2 }}
-            className="w-full max-w-lg bg-base border border-border shadow-2xl rounded-2xl overflow-hidden relative z-10 mx-4"
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.1 }}
+            className="w-full max-w-lg bg-elevated border border-border shadow-2xl rounded-card overflow-hidden relative z-10 mx-4"
           >
             {/* Input area */}
             <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-surface/50">
@@ -137,11 +135,11 @@ export default function CommandPalette() {
                       onClick={() => handleSelect(item)}
                       onMouseEnter={() => setSelectedIndex(index)}
                       className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm transition-colors
-                        ${isSelected ? 'bg-accent-purple/15 text-text-primary' : 'text-text-secondary hover:bg-surface'}
+                        ${isSelected ? 'bg-cursed-purple/15 text-text-primary' : 'text-text-secondary hover:bg-surface'}
                       `}
                     >
                       <div className="flex items-center gap-3">
-                        <Icon size={16} className={isSelected ? 'text-accent-purple' : 'text-text-muted'} />
+                        <Icon size={16} className={isSelected ? 'text-cursed-purple' : 'text-text-muted'} />
                         <span>{item.name}</span>
                       </div>
                       {isSelected && (

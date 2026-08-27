@@ -18,7 +18,6 @@ const keyboardShortcuts = [
   { key: 'W', action: 'Log workout' },
   { key: 'S', action: 'Log sleep' },
   { key: 'M', action: 'Log meal' },
-  { key: 'H', action: 'Check off habits' },
   { key: 'J', action: 'Open journal' },
   { key: '⌘K', action: 'Command palette' },
 ]
@@ -38,7 +37,7 @@ export default function Settings() {
 
   // LifeScore weights
   const [weights, setWeights] = useState(
-    profile?.lifescore_weights || { tasks: 20, workouts: 20, sleep: 20, calories: 20, habits: 20 }
+    profile?.lifescore_weights || { tasks: 20, workouts: 20, sleep: 20, calories: 20, finance: 20 }
   )
   const totalWeights = Object.values(weights).reduce((a, b) => a + b, 0)
 

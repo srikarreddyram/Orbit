@@ -11,11 +11,13 @@ export const ICON_REGISTRY = {
   Smile, Gift, Book, Music, Scissors, Wrench, Bus, Camera
 }
 
-// Predefined colors for the user to choose from
+// Predefined colors for the user to choose from — worn, muted tones (dried
+// blood, ash, faded ink) to match the app's ink-and-cursed-energy palette,
+// rather than bright candy accents.
 export const COLOR_PALETTE = [
-  '#f59e0b', '#60a5fa', '#7c6af7', '#f87171', '#ec4899', 
-  '#fb923c', '#14b8a6', '#8b5cf6', '#0ea5e9', '#64748b', 
-  '#34d399', '#10b981', '#059669', '#f43f5e'
+  '#6B2B2B', '#5C3A1E', '#4A4A1E', '#2E4A2E', '#1E4A4A',
+  '#2E3A6B', '#4A2E6B', '#6B2E4A', '#7C3AED', '#38BDF8',
+  '#B91C1C', '#C2872A', '#9D5C7C', '#4A4A5A'
 ]
 
 /**

@@ -1,16 +1,15 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Plus, Coffee, Sun, Moon, Droplet, PlusCircle } from 'lucide-react'
-import { motion } from 'framer-motion'
 
 const MEAL_TYPES = [
-  { id: 'breakfast', label: 'Breakfast', icon: Coffee, color: '#f59e0b' },
-  { id: 'lunch', label: 'Lunch', icon: Sun, color: '#34d399' },
-  { id: 'dinner', label: 'Dinner', icon: Moon, color: '#60a5fa' },
-  { id: 'snack', label: 'Snacks', icon: PlusCircle, color: '#a78bfa' },
+  { id: 'breakfast', label: 'Breakfast', icon: Coffee, color: '#C2872A' },
+  { id: 'lunch', label: 'Lunch', icon: Sun, color: '#2DD4BF' },
+  { id: 'dinner', label: 'Dinner', icon: Moon, color: '#38BDF8' },
+  { id: 'snack', label: 'Snacks', icon: PlusCircle, color: '#8B5CF6' },
 ]
 
-export default function LogTab({ data, addMeal, updateWater }) {
-  const { meals, water_ml } = data
+export default function LogTab({ data, updateWater, waterGoalGlasses, onLogFood }) {
+  const { meals, water_ml, water_glasses } = data
 
   const groupedMeals = useMemo(() => {
     const grouped = { breakfast: [], lunch: [], dinner: [], snack: [] }
@@ -25,7 +24,7 @@ export default function LogTab({ data, addMeal, updateWater }) {
   }, [meals])
 
   const handleAddWater = () => {
-    updateWater(water_ml + 250)
+    updateWater(water_glasses + 1)
   }
 
   return (
@@ -51,7 +50,11 @@ export default function LogTab({ data, addMeal, updateWater }) {
               </div>
               <div className="flex items-center gap-4">
                 <span className="text-sm font-bold font-mono-numbers text-text-primary">{typeCals} <span className="text-xs text-text-muted font-sans font-normal">kcal</span></span>
-                <button className="w-8 h-8 rounded-full bg-accent-purple/10 text-accent-purple hover:bg-accent-purple/20 flex items-center justify-center transition-colors">
+                <button
+                  onClick={() => onLogFood(type.id)}
+                  className="w-8 h-8 rounded-full bg-accent-purple/10 text-accent-purple hover:bg-accent-purple/20 flex items-center justify-center transition-colors"
+                  aria-label={`Add food to ${type.label}`}
+                >
                   <Plus size={16} />
                 </button>
               </div>
@@ -64,12 +67,16 @@ export default function LogTab({ data, addMeal, updateWater }) {
                   <p className="text-xs text-text-muted">No foods logged yet.</p>
                 </div>
               ) : (
-                typeMeals.map((meal, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3 hover:bg-white/5 rounded-2xl transition-colors">
+                typeMeals.map((meal) => (
+                  <div key={meal.id} className="flex items-center justify-between p-3 hover:bg-white/5 rounded-2xl transition-colors">
                     <div>
-                      <h4 className="text-sm font-medium text-text-primary">{meal.food_name}</h4>
+                      <h4 className="text-sm font-medium text-text-primary">{meal.food_item}</h4>
                       <p className="text-[10px] text-text-muted uppercase tracking-wider font-semibold mt-0.5">
-                        {meal.protein}g P • {meal.carbs}g C • {meal.fat}g F
+                        {meal.protein_g}g P • {meal.carbs_g}g C • {meal.fat_g}g F
+                        {(meal.sugar_g > 0 || meal.cholesterol_mg > 0) && ' • '}
+                        {meal.sugar_g > 0 && `${meal.sugar_g}g Sugar`}
+                        {meal.sugar_g > 0 && meal.cholesterol_mg > 0 && ' • '}
+                        {meal.cholesterol_mg > 0 && `${meal.cholesterol_mg}mg Chol`}
                       </p>
                     </div>
                     <span className="text-sm font-mono-numbers font-semibold text-text-secondary">{meal.calories}</span>
@@ -89,7 +96,9 @@ export default function LogTab({ data, addMeal, updateWater }) {
           </div>
           <div>
             <h3 className="font-bold text-text-primary">Water</h3>
-            <p className="text-xs text-text-muted mt-0.5 font-mono-numbers">{water_ml} ml logged</p>
+            <p className="text-xs text-text-muted mt-0.5 font-mono-numbers">
+              {water_ml} / {waterGoalGlasses * 250} ml &middot; {water_glasses}/{waterGoalGlasses} glasses
+            </p>
           </div>
         </div>
         <button 

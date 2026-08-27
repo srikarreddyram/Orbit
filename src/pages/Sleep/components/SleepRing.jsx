@@ -7,14 +7,14 @@ export default function SleepRing({ log }) {
   
   // Data for the ring
   const data = [
-    { name: 'Score', value: score, color: '#60a5fa' },
+    { name: 'Score', value: score, color: '#38BDF8' },
     { name: 'Remaining', value: 100 - score, color: 'rgba(255,255,255,0.05)' }
   ]
 
-  let ringColor = '#60a5fa' 
-  if (score >= 85) ringColor = '#818cf8' 
-  else if (score < 70) ringColor = '#fbbf24' 
-  else if (score < 50) ringColor = '#ef4444' 
+  let ringColor = '#38BDF8'
+  if (score >= 85) ringColor = '#7C3AED'
+  else if (score < 70) ringColor = '#C2872A'
+  else if (score < 50) ringColor = '#B91C1C'
 
   data[0].color = ringColor
 

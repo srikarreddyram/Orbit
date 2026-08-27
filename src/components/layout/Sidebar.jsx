@@ -7,8 +7,6 @@ import {
   Moon,
   UtensilsCrossed,
   Wallet,
-  Target,
-  SmilePlus,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -17,14 +15,12 @@ import {
 import useStore from '../../store/useStore'
 
 const navItems = [
-  { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { path: '/', icon: LayoutDashboard, label: 'Today' },
   { path: '/tasks', icon: CheckSquare, label: 'Tasks' },
   { path: '/workouts', icon: Dumbbell, label: 'Workouts' },
   { path: '/sleep', icon: Moon, label: 'Sleep' },
   { path: '/nutrition', icon: UtensilsCrossed, label: 'Nutrition' },
   { path: '/finance', icon: Wallet, label: 'Finance' },
-  { path: '/habits', icon: Target, label: 'Habits' },
-  { path: '/mood', icon: SmilePlus, label: 'Mood' },
 ]
 
 const bottomItems = [
@@ -43,8 +39,11 @@ export default function Sidebar() {
     >
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 h-16 border-b border-border">
-        <div className="w-8 h-8 rounded-lg bg-accent-purple/20 flex items-center justify-center flex-shrink-0">
-          <Sparkles size={18} className="text-accent-purple" />
+        <div
+          className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 shadow-glow-purple"
+          style={{ background: '#7C3AED' }}
+        >
+          <Sparkles size={18} className="text-white" />
         </div>
         {!sidebarCollapsed && (
           <motion.span
@@ -52,7 +51,7 @@ export default function Sidebar() {
             animate={{ opacity: 1 }}
             className="font-semibold text-lg text-text-primary tracking-tight"
           >
-            LifeOS
+            Orbit
           </motion.span>
         )}
       </div>
@@ -65,21 +64,32 @@ export default function Sidebar() {
             to={item.path}
             end={item.path === '/'}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
+              `relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
               ${isActive
-                ? 'bg-accent-purple/10 text-accent-purple'
+                ? 'bg-cursed-purple/10 text-cursed-purple'
                 : 'text-text-secondary hover:text-text-primary hover:bg-elevated'
               }`
             }
           >
-            <item.icon size={20} className="flex-shrink-0" />
-            {!sidebarCollapsed && (
-              <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
-                {item.label}
-              </motion.span>
+            {({ isActive }) => (
+              <>
+                {isActive && (
+                  <motion.span
+                    layoutId="sidebar-active-indicator"
+                    className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-cursed-purple"
+                    transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+                  />
+                )}
+                <item.icon size={20} className="flex-shrink-0" />
+                {!sidebarCollapsed && (
+                  <motion.span
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    {item.label}
+                  </motion.span>
+                )}
+              </>
             )}
           </NavLink>
         ))}
@@ -94,7 +104,7 @@ export default function Sidebar() {
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
               ${isActive
-                ? 'bg-accent-purple/10 text-accent-purple'
+                ? 'bg-cursed-purple/10 text-cursed-purple'
                 : 'text-text-secondary hover:text-text-primary hover:bg-elevated'
               }`
             }

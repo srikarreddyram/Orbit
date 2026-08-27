@@ -8,10 +8,10 @@ export default function SleepStages({ log }) {
 
     // Generate dummy stages if not present in DB
     return [
-      { stage: 'awake', duration: 15, color: '#ef4444' }, // Red
-      { stage: 'light', duration: 180, color: '#60a5fa' }, // Blue
-      { stage: 'deep', duration: 90, color: '#1e3a8a' }, // Dark Blue
-      { stage: 'rem', duration: 120, color: '#a78bfa' }, // Purple
+      { stage: 'awake', duration: 15, color: '#B91C1C' }, // Blood red
+      { stage: 'light', duration: 180, color: '#38BDF8' }, // Cursed blue
+      { stage: 'deep', duration: 90, color: '#2E3A6B' }, // Dark indigo
+      { stage: 'rem', duration: 120, color: '#8B5CF6' }, // Violet
     ]
   }, [log])
 

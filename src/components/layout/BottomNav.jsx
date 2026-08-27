@@ -3,31 +3,27 @@ import {
   LayoutDashboard,
   CheckSquare,
   Dumbbell,
+  Moon,
   UtensilsCrossed,
-  Target,
   Menu,
 } from 'lucide-react'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Moon,
   Wallet,
-  SmilePlus,
   Settings,
 } from 'lucide-react'
 
 const mainTabs = [
-  { path: '/', icon: LayoutDashboard, label: 'Home' },
+  { path: '/', icon: LayoutDashboard, label: 'Today' },
   { path: '/tasks', icon: CheckSquare, label: 'Tasks' },
   { path: '/workouts', icon: Dumbbell, label: 'Workouts' },
+  { path: '/sleep', icon: Moon, label: 'Sleep' },
   { path: '/nutrition', icon: UtensilsCrossed, label: 'Food' },
-  { path: '/habits', icon: Target, label: 'Habits' },
 ]
 
 const moreTabs = [
-  { path: '/sleep', icon: Moon, label: 'Sleep' },
   { path: '/finance', icon: Wallet, label: 'Finance' },
-  { path: '/mood', icon: SmilePlus, label: 'Mood' },
   { path: '/settings', icon: Settings, label: 'Settings' },
 ]
 
@@ -44,14 +40,14 @@ export default function BottomNav() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-40 bg-black/40"
+              className="fixed inset-0 z-40 bg-black/50"
               onClick={() => setMoreOpen(false)}
             />
             <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 20, opacity: 0 }}
-              className="fixed bottom-20 left-4 right-4 z-50 glass rounded-2xl p-3 grid grid-cols-4 gap-2"
+              className="fixed bottom-20 left-4 right-4 z-50 glass rounded-2xl p-3 grid grid-cols-2 gap-2"
             >
               {moreTabs.map((item) => (
                 <NavLink
@@ -60,7 +56,7 @@ export default function BottomNav() {
                   onClick={() => setMoreOpen(false)}
                   className={({ isActive }) =>
                     `flex flex-col items-center gap-1 py-3 rounded-xl text-xs transition-colors
-                    ${isActive ? 'text-accent-purple bg-accent-purple/10' : 'text-text-secondary'}`
+                    ${isActive ? 'text-cursed-purple bg-cursed-purple/10' : 'text-text-secondary'}`
                   }
                 >
                   <item.icon size={20} />
@@ -82,7 +78,7 @@ export default function BottomNav() {
               end={item.path === '/'}
               className={({ isActive }) =>
                 `flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl text-xs transition-colors
-                ${isActive ? 'text-accent-purple' : 'text-text-muted'}`
+                ${isActive ? 'text-cursed-purple' : 'text-text-muted'}`
               }
             >
               <item.icon size={20} />
@@ -92,7 +88,7 @@ export default function BottomNav() {
           <button
             onClick={() => setMoreOpen(!moreOpen)}
             className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl text-xs transition-colors
-              ${moreOpen ? 'text-accent-purple' : 'text-text-muted'}`}
+              ${moreOpen ? 'text-cursed-purple' : 'text-text-muted'}`}
             aria-label="More modules"
           >
             <Menu size={20} />
