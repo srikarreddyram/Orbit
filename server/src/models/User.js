@@ -9,12 +9,11 @@ const userSchema = new mongoose.Schema({
   daily_calorie_goal: { type: Number, default: 2000 },
   daily_water_goal: { type: Number, default: 8 },
   weekly_workout_goal: { type: Number, default: 4 },
-  sleep_target_hours: { type: Number, default: 8 },
   monthly_budget: { type: Number, default: 2500 },
   currency: { type: String, default: 'USD' },
   lifescore_weights: {
     type: Object,
-    default: { tasks: 20, workouts: 20, sleep: 20, calories: 20, finance: 20 },
+    default: { tasks: 25, workouts: 25, calories: 25, finance: 25 },
   },
   created_at: { type: Date, default: Date.now },
 })

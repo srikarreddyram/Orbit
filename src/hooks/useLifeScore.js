@@ -1,14 +1,12 @@
 import { useMemo } from 'react'
 import useTasks from './useTasks'
 import useWorkouts from './useWorkouts'
-import useSleep from './useSleep'
 import useNutrition from './useNutrition'
 import useFinance from './useFinance'
 import useAuth from './useAuth'
 import {
   calculateTaskScore,
   calculateWorkoutScore,
-  calculateSleepScore,
   calculateCalorieScore,
   calculateFinanceScore,
   calculateLifeScore,
@@ -22,7 +20,6 @@ export default function useLifeScore() {
   // Bring in data from all modules
   const { tasks } = useTasks()
   const { workouts } = useWorkouts()
-  const { sleepLogs } = useSleep()
   const { meals } = useNutrition()
   const { transactions, budgetLimits } = useFinance()
 
@@ -37,17 +34,12 @@ export default function useLifeScore() {
     const weeklyWorkouts = workouts.filter(w => isThisWeek(w.logged_at)).length
     const workoutScore = calculateWorkoutScore(weeklyWorkouts, profile?.weekly_workout_goal || 4)
 
-    // 3. Sleep
-    // Find last night's sleep (logged today or yesterday)
-    const lastSleep = sleepLogs[sleepLogs.length - 1]
-    const sleepScore = calculateSleepScore(lastSleep?.duration_hours || 0, profile?.sleep_target_hours || 8)
-
-    // 4. Calories
+    // 3. Calories
     const todayMeals = meals.filter(m => m.logged_at === today)
     const caloriesConsumed = todayMeals.reduce((sum, m) => sum + m.calories, 0)
     const calorieScore = calculateCalorieScore(caloriesConsumed, profile?.daily_calorie_goal || 2000)
 
-    // 5. Finance
+    // 4. Finance
     // How this month's spending compares to the total monthly budget across categories
     const spentThisMonth = transactions
       .filter(t => t.type === 'expense' && isThisMonth(t.date))
@@ -55,11 +47,10 @@ export default function useLifeScore() {
     const monthlyBudget = budgetLimits.reduce((sum, b) => sum + toMonthlyEquivalent(b.limit_amount, b.period), 0) || profile?.monthly_budget || 0
     const financeScore = calculateFinanceScore(spentThisMonth, monthlyBudget)
 
-    // 6. Overall
+    // 5. Overall
     const overall = calculateLifeScore({
       tasks: taskScore,
       workouts: workoutScore,
-      sleep: sleepScore,
       calories: calorieScore,
       finance: financeScore,
     }, profile?.lifescore_weights)
@@ -69,12 +60,11 @@ export default function useLifeScore() {
       components: {
         tasks: taskScore,
         workouts: workoutScore,
-        sleep: sleepScore,
         calories: calorieScore,
         finance: financeScore,
       }
     }
-  }, [tasks, workouts, sleepLogs, meals, transactions, budgetLimits, profile])
+  }, [tasks, workouts, meals, transactions, budgetLimits, profile])
 
   return scores
 }

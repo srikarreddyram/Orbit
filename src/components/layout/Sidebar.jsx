@@ -4,7 +4,6 @@ import {
   LayoutDashboard,
   CheckSquare,
   Dumbbell,
-  Moon,
   UtensilsCrossed,
   Wallet,
   Settings,
@@ -18,7 +17,6 @@ const navItems = [
   { path: '/', icon: LayoutDashboard, label: 'Today' },
   { path: '/tasks', icon: CheckSquare, label: 'Tasks' },
   { path: '/workouts', icon: Dumbbell, label: 'Workouts' },
-  { path: '/sleep', icon: Moon, label: 'Sleep' },
   { path: '/nutrition', icon: UtensilsCrossed, label: 'Nutrition' },
   { path: '/finance', icon: Wallet, label: 'Finance' },
 ]

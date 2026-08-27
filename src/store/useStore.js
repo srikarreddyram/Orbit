@@ -8,7 +8,7 @@ const useStore = create((set) => ({
 
   // Quick add modal
   quickAddOpen: false,
-  quickAddType: null, // 'task' | 'workout' | 'sleep' | 'meal' | 'transaction'
+  quickAddType: null, // 'task' | 'workout' | 'meal' | 'transaction'
   openQuickAdd: (type = null) => set({ quickAddOpen: true, quickAddType: type }),
   closeQuickAdd: () => set({ quickAddOpen: false, quickAddType: null }),
 

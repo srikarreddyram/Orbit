@@ -4,7 +4,6 @@ import { asyncHandler } from '../utils/asyncHandler.js'
 import Task from '../models/Task.js'
 import Workout from '../models/Workout.js'
 import PersonalRecord from '../models/PersonalRecord.js'
-import SleepLog from '../models/SleepLog.js'
 import Meal from '../models/Meal.js'
 import WaterLog from '../models/WaterLog.js'
 import Transaction from '../models/Transaction.js'
@@ -25,7 +24,7 @@ router.use(requireAuth)
 
 const COLLECTIONS = {
   tasks: Task, workouts: Workout, personal_records: PersonalRecord,
-  sleep_logs: SleepLog, meals: Meal, water_logs: WaterLog,
+  meals: Meal, water_logs: WaterLog,
   transactions: Transaction, budget_limits: BudgetLimit, accounts: Account,
   recurring_transactions: RecurringTransaction, transaction_categories: TransactionCategory,
   habits: Habit, habit_completions: HabitCompletion, mood_logs: MoodLog,

@@ -1,8 +1,8 @@
 /**
  * LifeScore Calculator
  *
- * Computes a 0–100 score based on 5 weighted components:
- * Tasks (20%), Workouts (20%), Sleep (20%), Calories (20%), Finance (20%)
+ * Computes a 0–100 score based on 4 weighted components:
+ * Tasks (25%), Workouts (25%), Calories (25%), Finance (25%)
  */
 
 /**
@@ -24,16 +24,6 @@ export function calculateWorkoutScore(weeklyWorkouts, weeklyGoal) {
   if (!weeklyGoal || weeklyGoal === 0) return 100
   const count = weeklyWorkouts || 0
   return Math.min(100, Math.round((count / weeklyGoal) * 100))
-}
-
-/**
- * Calculate sleep score (0-100)
- * Hours last night vs. target (capped at 100% if ≥ target)
- */
-export function calculateSleepScore(lastNightHours, targetHours) {
-  if (!lastNightHours || !targetHours) return 0
-  if (lastNightHours >= targetHours) return 100
-  return Math.round((lastNightHours / targetHours) * 100)
 }
 
 /**
@@ -76,23 +66,21 @@ export function calculateFinanceScore(spentThisMonth, monthlyBudget) {
  */
 export function calculateLifeScore(components, weights = null) {
   const defaultWeights = {
-    tasks: 20,
-    workouts: 20,
-    sleep: 20,
-    calories: 20,
-    finance: 20,
+    tasks: 25,
+    workouts: 25,
+    calories: 25,
+    finance: 25,
   }
 
-  // Guard against stale stored weight objects (e.g. an old `habits` key from
-  // before Finance replaced Habits as the 5th component) — only the known
-  // component keys count toward the total, anything else is ignored.
+  // Guard against stale stored weight objects (e.g. an old `habits` or
+  // `sleep` key from a component this score no longer tracks) — only the
+  // known component keys count toward the total, anything else is ignored.
   const w = { ...defaultWeights, ...weights }
-  const totalWeight = w.tasks + w.workouts + w.sleep + w.calories + w.finance
+  const totalWeight = w.tasks + w.workouts + w.calories + w.finance
 
   const score =
     (components.tasks * w.tasks +
       components.workouts * w.workouts +
-      components.sleep * w.sleep +
       components.calories * w.calories +
       components.finance * w.finance) / totalWeight
 

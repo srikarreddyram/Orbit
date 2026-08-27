@@ -16,7 +16,6 @@ import { CURRENCIES } from '../utils/currencyHelpers'
 const keyboardShortcuts = [
   { key: 'N', action: 'New task' },
   { key: 'W', action: 'Log workout' },
-  { key: 'S', action: 'Log sleep' },
   { key: 'M', action: 'Log meal' },
   { key: 'J', action: 'Open journal' },
   { key: '⌘K', action: 'Command palette' },
@@ -27,7 +26,6 @@ export default function Settings() {
   const [name, setName] = useState(profile?.name || '')
   const [calorieGoal, setCalorieGoal] = useState(profile?.daily_calorie_goal || 2000)
   const [waterGoal, setWaterGoal] = useState(profile?.daily_water_goal || 8)
-  const [sleepTarget, setSleepTarget] = useState(profile?.sleep_target_hours || 8)
   const [workoutGoal, setWorkoutGoal] = useState(profile?.weekly_workout_goal || 4)
   const [monthlyBudget, setMonthlyBudget] = useState(profile?.monthly_budget || 2500)
   const [currency, setCurrency] = useState(profile?.currency || 'USD')
@@ -37,7 +35,7 @@ export default function Settings() {
 
   // LifeScore weights
   const [weights, setWeights] = useState(
-    profile?.lifescore_weights || { tasks: 20, workouts: 20, sleep: 20, calories: 20, finance: 20 }
+    profile?.lifescore_weights || { tasks: 25, workouts: 25, calories: 25, finance: 25 }
   )
   const totalWeights = Object.values(weights).reduce((a, b) => a + b, 0)
 
@@ -58,7 +56,6 @@ export default function Settings() {
         name,
         daily_calorie_goal: calorieGoal,
         daily_water_goal: waterGoal,
-        sleep_target_hours: sleepTarget,
         weekly_workout_goal: workoutGoal,
         monthly_budget: monthlyBudget,
         currency,
@@ -182,16 +179,6 @@ export default function Settings() {
               value={waterGoal}
               onChange={(e) => setWaterGoal(parseInt(e.target.value))}
               className="input-field font-mono-numbers"
-            />
-          </div>
-          <div>
-            <label className="text-xs text-text-muted mb-1 block">Sleep Target (hours)</label>
-            <input
-              type="number"
-              value={sleepTarget}
-              onChange={(e) => setSleepTarget(parseFloat(e.target.value))}
-              className="input-field font-mono-numbers"
-              step="0.5"
             />
           </div>
           <div>

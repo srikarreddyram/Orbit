@@ -8,7 +8,6 @@ import authRoutes from './routes/auth.routes.js'
 import profileRoutes from './routes/profile.routes.js'
 import taskRoutes from './routes/tasks.routes.js'
 import workoutRoutes from './routes/workouts.routes.js'
-import sleepRoutes from './routes/sleep.routes.js'
 import nutritionRoutes from './routes/nutrition.routes.js'
 import financeRoutes from './routes/finance.routes.js'
 import habitRoutes from './routes/habits.routes.js'
@@ -31,7 +30,6 @@ app.use('/api/auth', authRoutes)
 app.use('/api/profile', profileRoutes)
 app.use('/api/tasks', taskRoutes)
 app.use('/api/workouts', workoutRoutes)
-app.use('/api/sleep-logs', sleepRoutes)
 app.use('/api/nutrition', nutritionRoutes)
 app.use('/api/finance', financeRoutes)
 app.use('/api/habits', habitRoutes)

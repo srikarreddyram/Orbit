@@ -1,14 +1,13 @@
 import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Home, CheckSquare, Dumbbell, Moon, UtensilsCrossed, Wallet, Settings, Plus } from 'lucide-react'
+import { Search, Home, CheckSquare, Dumbbell, UtensilsCrossed, Wallet, Settings, Plus } from 'lucide-react'
 import useStore from '../../store/useStore'
 
 const pages = [
   { name: 'Dashboard', path: '/', icon: Home },
   { name: 'Tasks', path: '/tasks', icon: CheckSquare },
   { name: 'Workouts', path: '/workouts', icon: Dumbbell },
-  { name: 'Sleep', path: '/sleep', icon: Moon },
   { name: 'Nutrition', path: '/nutrition', icon: UtensilsCrossed },
   { name: 'Finance', path: '/finance', icon: Wallet },
   { name: 'Settings', path: '/settings', icon: Settings },

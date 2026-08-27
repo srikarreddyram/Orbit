@@ -8,7 +8,7 @@ router.use(requireAuth)
 
 const ALLOWED_FIELDS = [
   'name', 'avatar_url', 'daily_calorie_goal', 'daily_water_goal',
-  'weekly_workout_goal', 'sleep_target_hours', 'monthly_budget',
+  'weekly_workout_goal', 'monthly_budget',
   'currency', 'lifescore_weights',
 ]
 

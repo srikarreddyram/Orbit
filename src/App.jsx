@@ -11,7 +11,6 @@ const Login = lazy(() => import('./pages/Login'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const Tasks = lazy(() => import('./pages/Tasks'))
 const Workouts = lazy(() => import('./pages/Workouts'))
-const Sleep = lazy(() => import('./pages/Sleep'))
 const Nutrition = lazy(() => import('./pages/Nutrition'))
 const Finance = lazy(() => import('./pages/Finance'))
 const Settings = lazy(() => import('./pages/Settings'))
@@ -73,7 +72,6 @@ function App() {
                 <Route index element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
                 <Route path="tasks" element={<ErrorBoundary><Tasks /></ErrorBoundary>} />
                 <Route path="workouts" element={<ErrorBoundary><Workouts /></ErrorBoundary>} />
-                <Route path="sleep" element={<ErrorBoundary><Sleep /></ErrorBoundary>} />
                 <Route path="nutrition" element={<ErrorBoundary><Nutrition /></ErrorBoundary>} />
                 <Route path="finance" element={<ErrorBoundary><Finance /></ErrorBoundary>} />
                 <Route path="settings" element={<ErrorBoundary><Settings /></ErrorBoundary>} />

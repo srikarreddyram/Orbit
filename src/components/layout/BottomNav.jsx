@@ -3,7 +3,6 @@ import {
   LayoutDashboard,
   CheckSquare,
   Dumbbell,
-  Moon,
   UtensilsCrossed,
   Menu,
 } from 'lucide-react'
@@ -18,12 +17,11 @@ const mainTabs = [
   { path: '/', icon: LayoutDashboard, label: 'Today' },
   { path: '/tasks', icon: CheckSquare, label: 'Tasks' },
   { path: '/workouts', icon: Dumbbell, label: 'Workouts' },
-  { path: '/sleep', icon: Moon, label: 'Sleep' },
   { path: '/nutrition', icon: UtensilsCrossed, label: 'Food' },
+  { path: '/finance', icon: Wallet, label: 'Finance' },
 ]
 
 const moreTabs = [
-  { path: '/finance', icon: Wallet, label: 'Finance' },
   { path: '/settings', icon: Settings, label: 'Settings' },
 ]
 
@@ -47,7 +45,7 @@ export default function BottomNav() {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 20, opacity: 0 }}
-              className="fixed bottom-20 left-4 right-4 z-50 glass rounded-2xl p-3 grid grid-cols-2 gap-2"
+              className="fixed bottom-20 left-4 right-4 z-50 glass rounded-2xl p-3 grid grid-cols-1 gap-2"
             >
               {moreTabs.map((item) => (
                 <NavLink

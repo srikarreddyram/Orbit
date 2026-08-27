@@ -1,12 +1,11 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { X, CheckSquare, Dumbbell, Moon, UtensilsCrossed, Wallet } from 'lucide-react'
+import { X, CheckSquare, Dumbbell, UtensilsCrossed, Wallet } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import useStore from '../store/useStore'
 
 const addOptions = [
   { id: 'task', label: 'Task', icon: CheckSquare, path: '/tasks', color: 'text-accent-blue', bg: 'bg-accent-blue/10' },
   { id: 'workout', label: 'Workout', icon: Dumbbell, path: '/workouts', color: 'text-accent-purple', bg: 'bg-accent-purple/10' },
-  { id: 'sleep', label: 'Sleep', icon: Moon, path: '/sleep', color: 'text-accent-blue', bg: 'bg-accent-blue/10' },
   { id: 'meal', label: 'Meal', icon: UtensilsCrossed, path: '/nutrition', color: 'text-accent-green', bg: 'bg-accent-green/10' },
   { id: 'transaction', label: 'Expense', icon: Wallet, path: '/finance', color: 'text-accent-amber', bg: 'bg-accent-amber/10' },
 ]

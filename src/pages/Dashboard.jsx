@@ -1,9 +1,8 @@
 import { motion } from 'framer-motion'
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar } from 'recharts'
+import { XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar } from 'recharts'
 import {
   CheckSquare,
   Dumbbell,
-  Moon,
   UtensilsCrossed,
   Wallet,
   Flame,
@@ -13,7 +12,6 @@ import Card, { StatCard } from '../components/ui/Card'
 import useAuth from '../hooks/useAuth'
 import useTasks from '../hooks/useTasks'
 import useWorkouts from '../hooks/useWorkouts'
-import useSleep from '../hooks/useSleep'
 import useNutrition from '../hooks/useNutrition'
 import useFinance from '../hooks/useFinance'
 import { getToday, isThisWeek, isThisMonth, getLastNDays, formatDate } from '../utils/dateHelpers'
@@ -129,7 +127,6 @@ export default function Dashboard() {
   const { profile } = useAuth()
   const { tasks } = useTasks()
   const { workouts } = useWorkouts()
-  const { sleepLogs } = useSleep()
   const { meals, waterLog } = useNutrition()
   const { transactions } = useFinance()
 
@@ -139,7 +136,6 @@ export default function Dashboard() {
   const todayTasks = tasks.filter(t => t.due_date === today)
   const todayDone = todayTasks.filter(t => t.completed).length
   const weeklyWorkouts = workouts.filter(w => isThisWeek(w.logged_at)).length
-  const lastSleep = sleepLogs[sleepLogs.length - 1]
   const todayMeals = meals.filter(m => m.logged_at === today)
   const caloriesConsumed = todayMeals.reduce((sum, m) => sum + m.calories, 0)
   const monthExpenses = transactions
@@ -158,7 +154,6 @@ export default function Dashboard() {
   const allActivityDates = [
     ...tasks.filter(t => t.completed_at).map(t => t.completed_at),
     ...workouts.map(w => w.logged_at),
-    ...sleepLogs.map(s => s.logged_at),
     ...meals.map(m => m.logged_at),
     ...transactions.map(t => t.date),
   ]
@@ -198,13 +193,7 @@ export default function Dashboard() {
         />
 
         {/* Stat cards row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full">
-          <StatCard
-            label="Sleep (last night)"
-            value={lastSleep ? `${lastSleep.duration_hours}h` : 'No data'}
-            icon={Moon}
-            color="text-accent-blue"
-          />
+        <div className="grid grid-cols-3 gap-3 w-full">
           <StatCard
             label="Calories today"
             value={caloriesConsumed.toLocaleString()}
@@ -264,24 +253,6 @@ export default function Dashboard() {
           )}
         </ModuleWidget>
 
-        {/* Sleep widget */}
-        <ModuleWidget
-          icon={Moon}
-          title="Sleep"
-          subtitle="Last night"
-          value={lastSleep ? `${lastSleep.duration_hours}h` : 'No data'}
-          color="text-accent-blue"
-        >
-          {lastSleep && (
-            <div className="flex items-center gap-2">
-              <span className="text-lg">
-                {lastSleep.quality >= 4 ? '😊' : lastSleep.quality <= 2 ? '😩' : '😐'}
-              </span>
-              <span className="text-xs text-text-secondary">Quality: {lastSleep.quality}/5</span>
-            </div>
-          )}
-        </ModuleWidget>
-
         {/* Nutrition widget */}
         <ModuleWidget
           icon={UtensilsCrossed}
@@ -321,34 +292,7 @@ export default function Dashboard() {
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card className="h-[300px] flex flex-col min-w-0">
-          <h3 className="text-sm font-semibold text-text-secondary mb-4 flex items-center gap-2">
-            <Moon size={16} className="text-cursed-blue" />
-            Sleep Duration Trend
-          </h3>
-          <div className="flex-1 min-h-0">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={sleepLogs.slice(-7)}>
-                <defs>
-                  <linearGradient id="colorSleep" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#38BDF8" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#38BDF8" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                <XAxis dataKey="logged_at" stroke="#6E6877" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => new Date(val).toLocaleDateString(undefined, { weekday: 'short' })} />
-                <YAxis stroke="#6E6877" fontSize={12} tickLine={false} axisLine={false} />
-                <RechartsTooltip
-                  contentStyle={{ backgroundColor: '#221E27', border: '1px solid #FFFFFF0D', borderRadius: '12px' }}
-                  itemStyle={{ color: '#EDEAF0' }}
-                />
-                <Area type="monotone" dataKey="duration_hours" stroke="#38BDF8" strokeWidth={1.5} fillOpacity={1} fill="url(#colorSleep)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-
+      <div className="grid grid-cols-1 gap-4">
         <Card className="h-[300px] flex flex-col min-w-0">
           <h3 className="text-sm font-semibold text-text-secondary mb-4 flex items-center gap-2">
             <Wallet size={16} className="text-accent-amber" />
