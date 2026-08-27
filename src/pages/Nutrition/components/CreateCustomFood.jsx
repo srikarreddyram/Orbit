@@ -1,12 +1,15 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X } from 'lucide-react'
+import { X, ScanLine, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import useCustomData from '../../../hooks/useCustomData'
 import { FOOD_UNITS } from '../../../utils/nutritionHelpers'
+import { scanNutritionLabel } from '../../../lib/ai'
 
 export default function CreateCustomFood({ isOpen, onClose }) {
   const { addCustomFood } = useCustomData()
+  const fileInputRef = useRef(null)
+  const [scanning, setScanning] = useState(false)
 
   const [name, setName] = useState('')
   const [baseAmount, setBaseAmount] = useState('100')
@@ -17,6 +20,37 @@ export default function CreateCustomFood({ isOpen, onClose }) {
   const [sugar, setSugar] = useState('')
   const [f, setF] = useState('')
   const [chol, setChol] = useState('')
+
+  const handleScan = async (e) => {
+    const file = e.target.files?.[0]
+    e.target.value = '' // allow re-selecting the same file later
+    if (!file) return
+
+    setScanning(true)
+    try {
+      const result = await scanNutritionLabel(file)
+      if (!result) {
+        toast.error('AI Log is not configured')
+        return
+      }
+      // Only fill in what the label actually gave us — never overwrite with
+      // a guess, and never touch a field the user already typed something into.
+      if (result.name && !name) setName(result.name)
+      if (result.base_amount != null) setBaseAmount(String(result.base_amount))
+      if (result.base_unit) setBaseUnit(result.base_unit)
+      if (result.calories != null) setCals(String(result.calories))
+      if (result.protein_g != null) setP(String(result.protein_g))
+      if (result.carbs_g != null) setC(String(result.carbs_g))
+      if (result.sugar_g != null) setSugar(String(result.sugar_g))
+      if (result.fat_g != null) setF(String(result.fat_g))
+      if (result.cholesterol_mg != null) setChol(String(result.cholesterol_mg))
+      toast.success('Label scanned — double-check the numbers before saving')
+    } catch (err) {
+      toast.error(err.message || 'Could not read that label')
+    } finally {
+      setScanning(false)
+    }
+  }
 
   const reset = () => {
     setName('')
@@ -82,6 +116,24 @@ export default function CreateCustomFood({ isOpen, onClose }) {
                 <X size={20} />
               </button>
             </div>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleScan}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={scanning}
+              className="w-full py-3 mb-4 rounded-xl border border-dashed border-accent-amber/40 text-accent-amber font-semibold text-sm flex items-center justify-center gap-2 hover:bg-accent-amber/10 transition-colors disabled:opacity-60"
+            >
+              {scanning ? <Loader2 size={16} className="animate-spin" /> : <ScanLine size={16} />}
+              {scanning ? 'Reading label…' : 'Scan Nutrition Label'}
+            </button>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>

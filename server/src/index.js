@@ -15,6 +15,7 @@ import moodRoutes from './routes/mood.routes.js'
 import metricsRoutes from './routes/metrics.routes.js'
 import customDataRoutes from './routes/customData.routes.js'
 import exportRoutes from './routes/export.routes.js'
+import aiRoutes from './routes/ai.routes.js'
 
 const app = express()
 
@@ -22,7 +23,9 @@ const app = express()
 // both localhost and a LAN IP (e.g. testing on a phone on the same wifi).
 const allowedOrigins = (process.env.CLIENT_ORIGIN || '*').split(',').map((o) => o.trim())
 app.use(cors({ origin: allowedOrigins.includes('*') ? '*' : allowedOrigins }))
-app.use(express.json())
+// Raised from Express's 100kb default — nutrition-label photos sent as
+// base64 JSON easily exceed that.
+app.use(express.json({ limit: '10mb' }))
 
 app.get('/api/health', (req, res) => res.json({ ok: true }))
 
@@ -37,6 +40,7 @@ app.use('/api/mood-logs', moodRoutes)
 app.use('/api/user-metrics', metricsRoutes)
 app.use('/api/custom', customDataRoutes)
 app.use('/api/export', exportRoutes)
+app.use('/api/ai', aiRoutes)
 
 app.use(errorHandler)
 
