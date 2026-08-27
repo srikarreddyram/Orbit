@@ -172,8 +172,8 @@ export default function Tasks() {
           </motion.div>
         </AnimatePresence>
 
-        {/* Floating Action Button */}
-        <div className="fixed bottom-[120px] md:bottom-12 right-6 md:right-12 z-40">
+        {/* Floating Action Button — stacked above the global AI chat FAB (bottom-right) so they don't overlap */}
+        <div className="fixed bottom-[180px] md:bottom-28 right-6 md:right-12 z-40">
           <button
             onClick={() => setEditingTask(null)}
             className="w-14 h-14 text-white rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(124,58,237,0.4)] hover:scale-105 active:scale-95 transition-all"

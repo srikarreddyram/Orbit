@@ -44,6 +44,7 @@ function TaskFormSheet({ onClose, addTask, updateTask, task, defaultDueToday }) 
   const isEditing = !!task
   const [title, setTitle] = useState(task?.title || '')
   const [dueDate, setDueDate] = useState(task?.due_date || (defaultDueToday ? getToday() : null))
+  const [dueTime, setDueTime] = useState(task?.due_time || null)
   const [priority, setPriority] = useState(task?.priority || 'medium')
   const [category, setCategory] = useState(task?.category || 'personal')
   const [panel, setPanel] = useState(null) // 'date' | 'priority' | 'category' | null
@@ -60,7 +61,7 @@ function TaskFormSheet({ onClose, addTask, updateTask, task, defaultDueToday }) 
     if (!title.trim() || saving) return
     setSaving(true)
     try {
-      const payload = { title: title.trim(), due_date: dueDate, priority, category }
+      const payload = { title: title.trim(), due_date: dueDate, due_time: dueDate ? dueTime : null, priority, category }
       if (isEditing) {
         await updateTask({ id: task.id, updates: payload })
       } else {
@@ -143,6 +144,15 @@ function TaskFormSheet({ onClose, addTask, updateTask, task, defaultDueToday }) 
                     onChange={(e) => setDueDate(e.target.value || null)}
                     className="input-field flex-1 min-w-[140px] py-1.5 text-sm"
                   />
+                  {dueDate && (
+                    <input
+                      type="time"
+                      value={dueTime || ''}
+                      onChange={(e) => setDueTime(e.target.value || null)}
+                      className="input-field flex-1 min-w-[110px] py-1.5 text-sm"
+                      aria-label="Deadline time"
+                    />
+                  )}
                 </div>
               </motion.div>
             )}
@@ -213,7 +223,11 @@ function TaskFormSheet({ onClose, addTask, updateTask, task, defaultDueToday }) 
                 }`}
               >
                 <Calendar size={16} />
-                {dueDate && <span className="hidden sm:inline">{dueDate === getToday() ? 'Today' : dueDate}</span>}
+                {dueDate && (
+                  <span className="hidden sm:inline">
+                    {dueDate === getToday() ? 'Today' : dueDate}{dueTime ? ` · ${dueTime}` : ''}
+                  </span>
+                )}
               </button>
               <button
                 type="button"

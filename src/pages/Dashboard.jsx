@@ -10,7 +10,6 @@ import {
   Droplets,
 } from 'lucide-react'
 import Card, { StatCard } from '../components/ui/Card'
-import useLifeScore from '../hooks/useLifeScore'
 import useAuth from '../hooks/useAuth'
 import useTasks from '../hooks/useTasks'
 import useWorkouts from '../hooks/useWorkouts'
@@ -21,71 +20,66 @@ import { getToday, isThisWeek, isThisMonth, getLastNDays, formatDate } from '../
 import { calculateStreak } from '../utils/streakCalculator'
 import { formatCurrency } from '../utils/currencyHelpers'
 
+const MEAL_WINDOWS = [
+  { type: 'breakfast', label: 'Breakfast', startHour: 5 },
+  { type: 'lunch', label: 'Lunch', startHour: 11 },
+  { type: 'dinner', label: 'Dinner', startHour: 16 },
+]
+
+function formatTime12h(timeStr) {
+  const [h, m] = timeStr.split(':').map(Number)
+  const period = h >= 12 ? 'PM' : 'AM'
+  const hour12 = h % 12 || 12
+  return `${hour12}:${String(m).padStart(2, '0')} ${period}`
+}
+
 /**
- * LifeScore Ring Gauge Component
+ * "Coming Up Today" — what's still ahead across tasks, meals, and workouts,
+ * in place of a single rolled-up score.
  */
-function LifeScoreRing({ score = 0, size = 200, strokeWidth = 12 }) {
-  const radius = (size - strokeWidth) / 2
-  const circumference = 2 * Math.PI * radius
-  const offset = circumference - (score / 100) * circumference
-
-  const getColor = (s) => {
-    if (s >= 70) return '#38BDF8' // cursed-blue — domain expansion
-    if (s >= 40) return '#7C3AED' // cursed-purple — steady
-    return '#B91C1C' // blood-red — danger
-  }
-
-  const color = getColor(score)
+function RemindersPanel({ upcomingTasks, missedMeals, workoutsToday, workoutsRemaining }) {
+  const hasWorkoutNudge = !workoutsToday && workoutsRemaining > 0
+  const hasAnything = upcomingTasks.length > 0 || missedMeals.length > 0 || hasWorkoutNudge
 
   return (
-    <div className="relative flex items-center justify-center grain rounded-full" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
-        {/* Background ring */}
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke="rgba(255,255,255,0.05)"
-          strokeWidth={strokeWidth}
-          fill="none"
-        />
-        {/* Score ring — flickers like cursed energy flaring before it settles */}
-        <motion.circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke={color}
-          strokeWidth={strokeWidth}
-          fill="none"
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          initial={{ strokeDashoffset: circumference, opacity: 1 }}
-          animate={{
-            strokeDashoffset: offset,
-            opacity: [1, 0.3, 1, 0.5, 1],
-          }}
-          transition={{
-            strokeDashoffset: { duration: 1.5, ease: 'easeOut', delay: 0.3 },
-            opacity: { duration: 0.6, delay: 1.4 },
-          }}
-          style={{
-            filter: `drop-shadow(0 0 8px ${color}66)`,
-          }}
-        />
-      </svg>
-      {/* Center text */}
-      <div className="absolute flex flex-col items-center">
-        <motion.span
-          className="text-3xl font-mono-numbers text-text-primary"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-        >
-          {score}
-        </motion.span>
-        <span className="text-xs text-text-secondary uppercase tracking-wider">LifeScore</span>
-      </div>
-    </div>
+    <Card className="w-full max-w-2xl mx-auto grain">
+      <h2 className="text-sm font-semibold text-text-secondary uppercase tracking-wider mb-4">Coming Up Today</h2>
+      {!hasAnything ? (
+        <p className="text-sm text-text-muted text-center py-8">You're all caught up. Nothing pending today.</p>
+      ) : (
+        <div className="space-y-3">
+          {upcomingTasks.slice(0, 4).map((task) => (
+            <div key={task.id} className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-cursed-purple/10 flex items-center justify-center shrink-0">
+                <CheckSquare size={14} className="text-cursed-purple" />
+              </div>
+              <p className="flex-1 min-w-0 text-sm text-text-primary truncate">{task.title}</p>
+              {task.due_time && (
+                <span className="text-xs font-mono-numbers text-text-muted shrink-0">{formatTime12h(task.due_time)}</span>
+              )}
+            </div>
+          ))}
+          {missedMeals.map((w) => (
+            <div key={w.type} className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-accent-amber/10 flex items-center justify-center shrink-0">
+                <UtensilsCrossed size={14} className="text-accent-amber" />
+              </div>
+              <p className="flex-1 text-sm text-text-primary">Haven't logged {w.label.toLowerCase()} yet</p>
+            </div>
+          ))}
+          {hasWorkoutNudge && (
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-blood/10 flex items-center justify-center shrink-0">
+                <Dumbbell size={14} className="text-blood" />
+              </div>
+              <p className="flex-1 text-sm text-text-primary">
+                {workoutsRemaining} workout{workoutsRemaining === 1 ? '' : 's'} left this week — fit one in today?
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+    </Card>
   )
 }
 
@@ -133,7 +127,6 @@ function ProgressBar({ value, max, color = '#7C3AED' }) {
 
 export default function Dashboard() {
   const { profile } = useAuth()
-  const { overall } = useLifeScore()
   const { tasks } = useTasks()
   const { workouts } = useWorkouts()
   const { sleepLogs } = useSleep()
@@ -171,16 +164,38 @@ export default function Dashboard() {
   ]
   const { current: streak } = calculateStreak(allActivityDates)
 
+  // "Coming up today" — tasks still due today, meal windows not yet logged,
+  // and a workout nudge if the weekly goal isn't met yet.
+  const upcomingTasks = todayTasks
+    .filter(t => !t.completed)
+    .sort((a, b) => {
+      if (a.due_time && b.due_time) return a.due_time.localeCompare(b.due_time)
+      if (a.due_time) return -1
+      if (b.due_time) return 1
+      return 0
+    })
+  const currentHour = new Date().getHours()
+  const missedMeals = MEAL_WINDOWS.filter(
+    (w) => currentHour >= w.startHour && !todayMeals.some((m) => m.meal_type === w.type)
+  )
+  const workoutsToday = workouts.some(w => new Date(w.logged_at).toDateString() === new Date().toDateString())
+  const workoutsRemaining = Math.max(0, (profile?.weekly_workout_goal || 4) - weeklyWorkouts)
+
   return (
     <div className="space-y-8">
-      {/* LifeScore Section */}
+      {/* Reminders Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
         className="flex flex-col items-center gap-6 py-4"
       >
-        <LifeScoreRing score={overall} size={200} />
+        <RemindersPanel
+          upcomingTasks={upcomingTasks}
+          missedMeals={missedMeals}
+          workoutsToday={workoutsToday}
+          workoutsRemaining={workoutsRemaining}
+        />
 
         {/* Stat cards row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full">
