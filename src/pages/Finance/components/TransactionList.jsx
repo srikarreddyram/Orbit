@@ -6,7 +6,7 @@ import { Trash2 } from 'lucide-react'
 import { formatCurrency } from '../../../utils/currencyHelpers'
 
 export default function TransactionList({ transactions, deleteTransaction, categories = [], currency = 'USD' }) {
-  // Group transactions by date
+  // Group transactions by date, with each day's net (income - expense)
   const groupedTransactions = useMemo(() => {
     const groups = {}
     transactions.forEach((t) => {
@@ -16,7 +16,11 @@ export default function TransactionList({ transactions, deleteTransaction, categ
     })
     return Object.entries(groups)
       .sort(([a], [b]) => (a < b ? 1 : a > b ? -1 : 0))
-      .map(([date, txs]) => ({ date, transactions: txs }))
+      .map(([date, txs]) => ({
+        date,
+        transactions: txs,
+        net: txs.reduce((sum, t) => sum + (t.type === 'income' ? t.amount : -t.amount), 0),
+      }))
   }, [transactions])
 
   if (transactions.length === 0) {
@@ -29,15 +33,22 @@ export default function TransactionList({ transactions, deleteTransaction, categ
 
   return (
     <div className="space-y-6 pb-20">
-      {groupedTransactions.map(({ date, transactions: txs }) => (
+      {groupedTransactions.map(({ date, transactions: txs, net }) => (
         <div key={date}>
           <div className="flex justify-between items-end mb-3 sticky top-14 bg-base/90 backdrop-blur-md py-2 z-10">
             <h3 className="text-[11px] uppercase tracking-widest text-text-muted font-bold">
               {formatRelativeDate(date)}
             </h3>
-            <span className="text-[11px] font-mono-numbers text-text-muted">
-              {formatDate(date, { year: undefined })}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-mono-numbers text-text-muted">
+                {formatDate(date, { year: undefined })}
+              </span>
+              <span className={`text-[11px] font-mono-numbers font-bold ${
+                net > 0 ? 'text-emerald-400' : net < 0 ? 'text-accent-red' : 'text-text-muted'
+              }`}>
+                {net > 0 ? '+' : net < 0 ? '-' : ''}{formatCurrency(Math.abs(net), currency)}
+              </span>
+            </div>
           </div>
           <div className="bg-surface/50 border border-border/50 rounded-2xl overflow-hidden shadow-sm">
             <AnimatePresence initial={false}>

@@ -4,7 +4,7 @@ import Card from '../../../components/ui/Card'
 import { getIconComponent } from './CategoryConfig'
 import { formatCurrency } from '../../../utils/currencyHelpers'
 
-export default function CategoryBreakdown({ transactions, categories = [], currency = 'USD' }) {
+export default function CategoryBreakdown({ transactions, categories = [], currency = 'USD', periodLabel = 'This Month' }) {
   const breakdown = useMemo(() => {
     const spending = {}
     let total = 0
@@ -40,7 +40,7 @@ export default function CategoryBreakdown({ transactions, categories = [], curre
     <Card className="p-5">
       <div className="flex items-center justify-between mb-5">
         <h3 className="text-sm font-bold text-text-primary">Top Categories</h3>
-        <span className="text-xs text-text-muted">This Month</span>
+        <span className="text-xs text-text-muted">{periodLabel}</span>
       </div>
       
       <div className="space-y-4">

@@ -4,14 +4,14 @@ import SpendingChart from '../components/SpendingChart'
 import CategoryDonut from '../components/CategoryDonut'
 import CategoryBreakdown from '../components/CategoryBreakdown'
 
-export default function DashboardTab({ monthTransactions, monthlyBudget, accounts = [], categories = [], currency = 'USD' }) {
+export default function DashboardTab({ monthTransactions, transactions = [], monthlyBudget, accounts = [], categories = [], currency = 'USD', onSelectAccount }) {
   const monthExpenses = monthTransactions
     .filter((t) => t.type === 'expense')
     .reduce((sum, t) => sum + t.amount, 0)
 
   return (
     <div className="space-y-6">
-      <AccountsCarousel accounts={accounts} currency={currency} />
+      <AccountsCarousel accounts={accounts} transactions={transactions} currency={currency} onSelect={onSelectAccount} />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-5 xl:col-span-4 space-y-6">

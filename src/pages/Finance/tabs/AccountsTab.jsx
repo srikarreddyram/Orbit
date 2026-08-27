@@ -6,7 +6,7 @@ import Modal from '../../../components/ui/Modal'
 import Button from '../../../components/ui/Button'
 import toast from 'react-hot-toast'
 
-export default function AccountsTab({ accounts = [], addAccount, transactions = [], currency = 'USD' }) {
+export default function AccountsTab({ accounts = [], addAccount, transactions = [], currency = 'USD', onSelectAccount }) {
   const [showAddModal, setShowAddModal] = useState(false)
   const [name, setName] = useState('')
   const [type, setType] = useState('checking')
@@ -127,9 +127,10 @@ export default function AccountsTab({ accounts = [], addAccount, transactions = 
               const spend = spendByAccount[account.id] || { monthly: 0, allTime: 0 }
 
               return (
-                <div
+                <button
                   key={account.id}
-                  className="group p-5 rounded-3xl border border-white/5 bg-surface/40 hover:bg-surface/80 transition-all cursor-pointer relative overflow-hidden backdrop-blur-xl"
+                  onClick={() => onSelectAccount?.(account)}
+                  className="group p-5 rounded-3xl border border-white/5 bg-surface/40 hover:bg-surface/80 transition-all cursor-pointer relative overflow-hidden backdrop-blur-xl text-left"
                 >
                   <div
                     className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-[50px] opacity-20 group-hover:opacity-40 transition-opacity pointer-events-none"
@@ -174,7 +175,7 @@ export default function AccountsTab({ accounts = [], addAccount, transactions = 
                       <p className="text-sm font-mono-numbers text-text-primary font-semibold">{formatCurrency(spend.allTime, currency)}</p>
                     </div>
                   </div>
-                </div>
+                </button>
               )
             })}
           </div>

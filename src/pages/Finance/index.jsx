@@ -13,6 +13,7 @@ import RecurringTab from './tabs/RecurringTab'
 
 import AddTransactionSheet from './components/AddTransactionSheet'
 import CategoryManagerModal from './components/CategoryManagerModal'
+import AccountDetail from './components/AccountDetail'
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -33,6 +34,7 @@ export default function Finance() {
   const [activeTab, setActiveTab] = useState('dashboard')
   const [showAddModal, setShowAddModal] = useState(false)
   const [showCategoryModal, setShowCategoryModal] = useState(false)
+  const [selectedAccount, setSelectedAccount] = useState(null)
   const monthlyBudget = profile?.monthly_budget || 2500
   const currency = profile?.currency || 'USD'
 
@@ -66,37 +68,49 @@ export default function Finance() {
         </button>
       </div>
 
-      {/* iOS Style Segmented Control (Tabs) */}
-      <div className="w-full overflow-x-auto hide-scrollbar mb-6">
-        <div className="flex p-1.5 bg-surface/80 backdrop-blur-md rounded-2xl border border-white/5 shadow-inner w-max min-w-full">
-          {TABS.map((tab) => {
-            const Icon = tab.icon
-            const isActive = activeTab === tab.id
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all relative whitespace-nowrap
-                  ${isActive ? 'text-white' : 'text-text-muted hover:text-text-secondary'}
-                `}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="finance-active-tab"
-                    className="absolute inset-0 bg-elevated rounded-xl shadow-lg border border-white/10"
-                    transition={{ type: 'spring', bounce: 0.2, duration: 0.5 }}
-                  />
-                )}
-                <Icon size={16} className="relative z-10" />
-                <span className="relative z-10">{tab.label}</span>
-              </button>
-            )
-          })}
+      {/* iOS Style Segmented Control (Tabs) — hidden while drilled into an account */}
+      {!selectedAccount && (
+        <div className="w-full overflow-x-auto hide-scrollbar mb-6">
+          <div className="flex p-1.5 bg-surface/80 backdrop-blur-md rounded-2xl border border-white/5 shadow-inner w-max min-w-full">
+            {TABS.map((tab) => {
+              const Icon = tab.icon
+              const isActive = activeTab === tab.id
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex-1 flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all relative whitespace-nowrap
+                    ${isActive ? 'text-white' : 'text-text-muted hover:text-text-secondary'}
+                  `}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="finance-active-tab"
+                      className="absolute inset-0 bg-elevated rounded-xl shadow-lg border border-white/10"
+                      transition={{ type: 'spring', bounce: 0.2, duration: 0.5 }}
+                    />
+                  )}
+                  <Icon size={16} className="relative z-10" />
+                  <span className="relative z-10">{tab.label}</span>
+                </button>
+              )
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Main Content Area */}
       <div className="flex-1">
+        {selectedAccount ? (
+          <AccountDetail
+            account={selectedAccount}
+            transactions={transactions}
+            categories={categories}
+            deleteTransaction={deleteTransaction}
+            currency={currency}
+            onBack={() => setSelectedAccount(null)}
+          />
+        ) : (
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -108,14 +122,16 @@ export default function Finance() {
             {activeTab === 'dashboard' && (
               <DashboardTab
                 monthTransactions={monthTransactions}
+                transactions={transactions}
                 monthlyBudget={monthlyBudget}
                 accounts={accounts}
                 categories={categories}
                 currency={currency}
+                onSelectAccount={setSelectedAccount}
               />
             )}
             {activeTab === 'transactions' && (
-              <TransactionsTab 
+              <TransactionsTab
                 transactions={transactions}
                 deleteTransaction={deleteTransaction}
                 categories={categories}
@@ -128,6 +144,7 @@ export default function Finance() {
                 addAccount={addAccount}
                 transactions={transactions}
                 currency={currency}
+                onSelectAccount={setSelectedAccount}
               />
             )}
             {activeTab === 'budgets' && (
@@ -151,6 +168,7 @@ export default function Finance() {
             )}
           </motion.div>
         </AnimatePresence>
+        )}
       </div>
 
       <AddTransactionSheet
