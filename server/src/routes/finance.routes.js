@@ -61,10 +61,10 @@ router.get('/budget-limits', asyncHandler(async (req, res) => {
 }))
 
 router.put('/budget-limits', asyncHandler(async (req, res) => {
-  const { category, monthly_limit } = req.body
+  const { category, limit_amount, period } = req.body
   const limit = await BudgetLimit.findOneAndUpdate(
     { user_id: req.userId, category },
-    { monthly_limit },
+    { limit_amount, period: period || 'monthly' },
     { new: true, upsert: true, setDefaultsOnInsert: true }
   )
   res.json(limit)

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { PieChart, Plus, Trash2, Edit2, X, AlertCircle } from 'lucide-react'
 import { formatCurrency } from '../../../utils/currencyHelpers'
 import { getIconComponent } from '../components/CategoryConfig'
+import { BUDGET_PERIODS, getPeriodStart } from '../../../utils/budgetHelpers'
 
 export default function BudgetsTab({ 
   budgetLimits = [], 
@@ -19,6 +20,7 @@ export default function BudgetsTab({
   // Form State
   const [selectedCategory, setSelectedCategory] = useState('')
   const [limitAmount, setLimitAmount] = useState('')
+  const [selectedPeriod, setSelectedPeriod] = useState('monthly')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Only show expenses categories for budgets
@@ -31,15 +33,18 @@ export default function BudgetsTab({
       const color = catObj ? catObj.color : '#6E6877'
       const iconName = catObj ? catObj.icon : 'Package'
 
+      // Spending is scoped to the budget's own period (weekly/monthly/
+      // quarterly/yearly), not summed across all history.
+      const periodStart = getPeriodStart(limit.period)
       const spent = transactions
-        .filter(t => t.type === 'expense' && t.category === limit.category)
+        .filter(t => t.type === 'expense' && t.category === limit.category && t.date >= periodStart)
         .reduce((sum, t) => sum + t.amount, 0)
-      
+
       return {
         ...limit,
         spent,
-        percentage: limit.monthly_limit > 0 ? Math.min((spent / limit.monthly_limit) * 100, 100) : 100,
-        isOver: spent > limit.monthly_limit,
+        percentage: limit.limit_amount > 0 ? Math.min((spent / limit.limit_amount) * 100, 100) : 100,
+        isOver: spent > limit.limit_amount,
         color,
         iconName
       }
@@ -49,13 +54,15 @@ export default function BudgetsTab({
   const handleOpenAdd = () => {
     setSelectedCategory(expenseCategories[0]?.name || '')
     setLimitAmount('')
+    setSelectedPeriod('monthly')
     setEditingLimit(null)
     setIsModalOpen(true)
   }
 
   const handleOpenEdit = (budget) => {
     setSelectedCategory(budget.category)
-    setLimitAmount(budget.monthly_limit.toString())
+    setLimitAmount(budget.limit_amount.toString())
+    setSelectedPeriod(budget.period || 'monthly')
     setEditingLimit(budget)
     setIsModalOpen(true)
   }
@@ -74,7 +81,8 @@ export default function BudgetsTab({
     try {
       await saveBudgetLimit({
         category: selectedCategory,
-        monthly_limit: parseFloat(limitAmount)
+        limit_amount: parseFloat(limitAmount),
+        period: selectedPeriod
       })
       setIsModalOpen(false)
     } catch (err) {
@@ -89,7 +97,7 @@ export default function BudgetsTab({
       <div className="flex items-center justify-between px-2 mb-2">
         <div>
           <h2 className="text-xl font-bold">Category Budgets</h2>
-          <p className="text-sm text-text-muted mt-1">This month's spending limits</p>
+          <p className="text-sm text-text-muted mt-1">Spending limits by category</p>
         </div>
         <div className="flex items-center gap-2">
           <button 
@@ -148,20 +156,25 @@ export default function BudgetsTab({
                       <Icon size={18} style={{ color }} />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-text-primary capitalize">{budget.category}</h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-text-primary capitalize">{budget.category}</h3>
+                        <span className="text-[10px] uppercase tracking-wider font-bold text-text-muted bg-white/5 px-1.5 py-0.5 rounded">
+                          {BUDGET_PERIODS.find(p => p.id === budget.period)?.label || 'Monthly'}
+                        </span>
+                      </div>
                       <p className="text-xs text-text-muted mt-0.5">
                         {isOver ? 'Over budget' : `${(100 - budget.percentage).toFixed(0)}% remaining`}
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-4">
                     <div className="text-right">
                       <div className="flex items-baseline gap-1">
                         <span className={`text-lg font-bold font-mono-numbers ${isOver ? 'text-accent-red' : 'text-text-primary'}`}>
                           {formatCurrency(budget.spent, currency)}
                         </span>
-                        <span className="text-sm font-mono-numbers text-text-muted">/ {formatCurrency(budget.monthly_limit, currency)}</span>
+                        <span className="text-sm font-mono-numbers text-text-muted">/ {formatCurrency(budget.limit_amount, currency)}</span>
                       </div>
                     </div>
                     
@@ -262,9 +275,27 @@ export default function BudgetsTab({
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-xs font-semibold text-text-secondary uppercase">Monthly Limit ({currency})</label>
-                        <input 
-                          type="number" 
+                        <label className="text-xs font-semibold text-text-secondary uppercase">Span</label>
+                        <div className="flex gap-1.5 bg-surface border border-white/10 rounded-xl p-1">
+                          {BUDGET_PERIODS.map(p => (
+                            <button
+                              key={p.id}
+                              type="button"
+                              onClick={() => setSelectedPeriod(p.id)}
+                              className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-colors ${
+                                selectedPeriod === p.id ? 'bg-accent-purple text-white' : 'text-text-secondary hover:text-text-primary'
+                              }`}
+                            >
+                              {p.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-xs font-semibold text-text-secondary uppercase">Limit ({currency})</label>
+                        <input
+                          type="number"
                           required
                           step="0.01"
                           min="1"

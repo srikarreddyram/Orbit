@@ -104,6 +104,23 @@ export function getMonthStart() {
 }
 
 /**
+ * Get start of current quarter
+ */
+export function getQuarterStart() {
+  const d = new Date()
+  const quarterMonth = Math.floor(d.getMonth() / 3) * 3
+  return toLocalDateString(new Date(d.getFullYear(), quarterMonth, 1))
+}
+
+/**
+ * Get start of current year
+ */
+export function getYearStart() {
+  const d = new Date()
+  return toLocalDateString(new Date(d.getFullYear(), 0, 1))
+}
+
+/**
  * Format duration in hours to "Xh Ym"
  */
 export function formatDuration(hours) {

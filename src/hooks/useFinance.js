@@ -72,7 +72,7 @@ export default function useFinance() {
   })
 
   const saveBudgetLimit = useMutation({
-    mutationFn: ({ category, monthly_limit }) => api.put('/finance/budget-limits', { category, monthly_limit }),
+    mutationFn: ({ category, limit_amount, period }) => api.put('/finance/budget-limits', { category, limit_amount, period }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['budget_limits', user?.id] }),
   })
 

@@ -14,6 +14,7 @@ import {
   calculateLifeScore,
 } from '../utils/scoreCalculator'
 import { getToday, isThisWeek, isThisMonth } from '../utils/dateHelpers'
+import { toMonthlyEquivalent } from '../utils/budgetHelpers'
 
 export default function useLifeScore() {
   const { profile } = useAuth()
@@ -51,7 +52,7 @@ export default function useLifeScore() {
     const spentThisMonth = transactions
       .filter(t => t.type === 'expense' && isThisMonth(t.date))
       .reduce((sum, t) => sum + t.amount, 0)
-    const monthlyBudget = budgetLimits.reduce((sum, b) => sum + b.monthly_limit, 0) || profile?.monthly_budget || 0
+    const monthlyBudget = budgetLimits.reduce((sum, b) => sum + toMonthlyEquivalent(b.limit_amount, b.period), 0) || profile?.monthly_budget || 0
     const financeScore = calculateFinanceScore(spentThisMonth, monthlyBudget)
 
     // 6. Overall
