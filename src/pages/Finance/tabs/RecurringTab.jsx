@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Calendar, Repeat, Plus } from 'lucide-react'
 import { getCurrencySymbol, formatCurrency } from '../../../utils/currencyHelpers'
 import { getIconComponent } from '../components/CategoryConfig'
@@ -14,6 +14,8 @@ export default function RecurringTab({ recurring = [], addRecurring, categories 
   const [category, setCategory] = useState('')
   const [frequency, setFrequency] = useState('monthly')
   const [nextDate, setNextDate] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const submittingRef = useRef(false)
 
   const availableCategories = categories.filter(c => c.type === txType)
   const effectiveCategory = availableCategories.find(c => c.name === category)?.name || availableCategories[0]?.name || ''
@@ -31,12 +33,14 @@ export default function RecurringTab({ recurring = [], addRecurring, categories 
 
   const handleAdd = async (e) => {
     e.preventDefault()
-    if (!name.trim() || !amount) return
+    if (!name.trim() || !amount || submittingRef.current) return
     if (!effectiveCategory) {
       toast.error('Please create a category first')
       return
     }
+    submittingRef.current = true
 
+    setIsSubmitting(true)
     try {
       await addRecurring({
         name,
@@ -52,6 +56,9 @@ export default function RecurringTab({ recurring = [], addRecurring, categories 
       toast.success('Subscription added')
     } catch {
       toast.error('Failed to add subscription')
+    } finally {
+      submittingRef.current = false
+      setIsSubmitting(false)
     }
   }
 
@@ -231,8 +238,8 @@ export default function RecurringTab({ recurring = [], addRecurring, categories 
               required
             />
           </div>
-          <Button type="submit" disabled={!effectiveCategory} className="w-full bg-accent-purple text-white py-3 mt-2 disabled:opacity-50">
-            Save Subscription
+          <Button type="submit" disabled={!effectiveCategory || isSubmitting} className="w-full bg-accent-purple text-white py-3 mt-2 disabled:opacity-50">
+            {isSubmitting ? 'Saving...' : 'Save Subscription'}
           </Button>
         </form>
       </Modal>

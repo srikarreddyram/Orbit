@@ -6,6 +6,7 @@ const accountSchema = new mongoose.Schema({
   name: { type: String, required: true },
   type: { type: String, enum: ['checking', 'savings', 'credit', 'investment', 'cash', 'other'], required: true },
   balance: { type: Number, default: 0 },
+  credit_limit: { type: Number, default: null },
   currency: { type: String, default: 'USD' },
   icon: { type: String, default: 'Wallet' },
   color: { type: String, default: '#60a5fa' },

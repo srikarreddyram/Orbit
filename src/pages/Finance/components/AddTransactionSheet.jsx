@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import Modal from '../../../components/ui/Modal'
 import Button from '../../../components/ui/Button'
@@ -14,13 +14,16 @@ function yesterday() {
   return d.toISOString().split('T')[0]
 }
 
-export default function AddTransactionSheet({ isOpen, onClose, addTransaction, categories = [], onManageCategories, currency = 'USD' }) {
+export default function AddTransactionSheet({ isOpen, onClose, addTransaction, categories = [], accounts = [], onManageCategories, currency = 'USD' }) {
   const [txType, setTxType] = useState('expense')
   const [txAmount, setTxAmount] = useState('')
   const [txCategory, setTxCategory] = useState('')
+  const [txAccountId, setTxAccountId] = useState('')
   const [txNote, setTxNote] = useState('')
   const [txDate, setTxDate] = useState(getToday())
   const [showDatePicker, setShowDatePicker] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const submittingRef = useRef(false)
 
   // Filter categories by type, falling back to the first available option
   // whenever the explicitly-selected one isn't valid for the current type.
@@ -29,20 +32,23 @@ export default function AddTransactionSheet({ isOpen, onClose, addTransaction, c
 
   const handleAdd = async (e) => {
     e.preventDefault()
-    if (!txAmount || parseFloat(txAmount) <= 0) return
+    if (!txAmount || parseFloat(txAmount) <= 0 || submittingRef.current) return
     if (!effectiveCategory) {
       toast.error('Please create a category first')
       return
     }
+    submittingRef.current = true
 
     const tx = {
       type: txType,
       amount: parseFloat(txAmount),
       category: effectiveCategory,
+      account_id: txAccountId || null,
       note: txNote,
       date: txDate,
     }
 
+    setIsSubmitting(true)
     try {
       await addTransaction(tx)
       setTxAmount('')
@@ -53,6 +59,9 @@ export default function AddTransactionSheet({ isOpen, onClose, addTransaction, c
       toast.success(`${txType === 'income' ? 'Income' : 'Expense'} logged!`)
     } catch {
       toast.error('Failed to log transaction')
+    } finally {
+      submittingRef.current = false
+      setIsSubmitting(false)
     }
   }
 
@@ -165,6 +174,37 @@ export default function AddTransactionSheet({ isOpen, onClose, addTransaction, c
           </div>
         </div>
 
+        {/* Account (optional) — tags this transaction to a specific account
+            so its spend rolls up on the Accounts tab */}
+        {accounts.length > 0 && (
+          <div>
+            <label className="text-xs uppercase tracking-wider text-text-muted font-bold block mb-2">Account (Optional)</label>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setTxAccountId('')}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  !txAccountId ? 'bg-accent-purple text-white' : 'bg-surface text-text-secondary hover:text-text-primary'
+                }`}
+              >
+                None
+              </button>
+              {accounts.map((acc) => (
+                <button
+                  key={acc.id}
+                  type="button"
+                  onClick={() => setTxAccountId(acc.id)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                    txAccountId === acc.id ? 'bg-accent-purple text-white' : 'bg-surface text-text-secondary hover:text-text-primary'
+                  }`}
+                >
+                  {acc.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Date */}
         <div>
           <label className="text-xs uppercase tracking-wider text-text-muted font-bold block mb-2">Date</label>
@@ -222,16 +262,16 @@ export default function AddTransactionSheet({ isOpen, onClose, addTransaction, c
           />
         </div>
 
-        <Button 
-          type="submit" 
-          disabled={!effectiveCategory}
+        <Button
+          type="submit"
+          disabled={!effectiveCategory || isSubmitting}
           className="w-full py-4 text-base font-bold shadow-lg disabled:opacity-50"
           style={{
             backgroundColor: txType === 'income' ? '#38BDF8' : '#7C3AED',
             color: '#fff'
           }}
         >
-          Add {txType === 'income' ? 'Income' : 'Expense'}
+          {isSubmitting ? 'Saving...' : `Add ${txType === 'income' ? 'Income' : 'Expense'}`}
         </Button>
       </form>
     </Modal>

@@ -1,45 +1,77 @@
-import { useState } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { Building2, CreditCard, Landmark, Plus, Wallet } from 'lucide-react'
 import { getCurrencySymbol, formatCurrency } from '../../../utils/currencyHelpers'
+import { getMonthStart } from '../../../utils/dateHelpers'
 import Modal from '../../../components/ui/Modal'
 import Button from '../../../components/ui/Button'
 import toast from 'react-hot-toast'
 
-export default function AccountsTab({ accounts = [], addAccount, currency = 'USD' }) {
+export default function AccountsTab({ accounts = [], addAccount, transactions = [], currency = 'USD' }) {
   const [showAddModal, setShowAddModal] = useState(false)
   const [name, setName] = useState('')
   const [type, setType] = useState('checking')
   const [balance, setBalance] = useState('')
+  const [creditLimit, setCreditLimit] = useState('')
   const [color, setColor] = useState('#2E3A6B')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const submittingRef = useRef(false)
 
   const totalAssets = accounts.filter(a => a.balance > 0).reduce((sum, a) => sum + Number(a.balance), 0)
   const totalLiabilities = accounts.filter(a => a.balance < 0).reduce((sum, a) => sum + Math.abs(Number(a.balance)), 0)
   const netWorth = totalAssets - totalLiabilities
 
+  // Spend per account — scoped to whichever account a transaction was tagged
+  // with, so a card someone else owns (e.g. a parent's credit card someone
+  // is an authorized user on) can still be tracked without it affecting
+  // this user's own asset/debt totals above.
+  const spendByAccount = useMemo(() => {
+    const monthStart = getMonthStart()
+    const spend = {}
+    for (const t of transactions) {
+      if (t.type !== 'expense' || !t.account_id) continue
+      if (!spend[t.account_id]) spend[t.account_id] = { monthly: 0, allTime: 0 }
+      spend[t.account_id].allTime += t.amount
+      if (t.date >= monthStart) spend[t.account_id].monthly += t.amount
+    }
+    return spend
+  }, [transactions])
+
   const handleAdd = async (e) => {
     e.preventDefault()
-    if (!name.trim()) return
+    // A ref guard, not just state — two clicks dispatched in the same tick
+    // (a fast double-click) both read the same pre-update `isSubmitting`
+    // closure value since React state updates aren't applied synchronously,
+    // so state alone doesn't stop a rapid double-submit. A ref mutates
+    // immediately, before either handler invocation returns.
+    if (!name.trim() || submittingRef.current) return
+    submittingRef.current = true
 
+    setIsSubmitting(true)
     try {
       await addAccount({
         name,
         type,
-        balance: parseFloat(balance) || 0,
+        balance: type === 'credit' ? 0 : parseFloat(balance) || 0,
+        credit_limit: type === 'credit' ? parseFloat(creditLimit) || null : null,
         color,
         currency
       })
       setShowAddModal(false)
       setName('')
       setBalance('')
+      setCreditLimit('')
       toast.success('Account added')
     } catch {
       toast.error('Failed to add account')
+    } finally {
+      submittingRef.current = false
+      setIsSubmitting(false)
     }
   }
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
-      
+
       {/* Net Worth Hero */}
       <div className="text-center py-10">
         <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-2">Net Worth</h2>
@@ -63,14 +95,14 @@ export default function AccountsTab({ accounts = [], addAccount, currency = 'USD
       <div className="space-y-4 pb-20">
         <div className="flex items-center justify-between px-2">
           <h3 className="text-lg font-bold">Your Accounts</h3>
-          <button 
+          <button
             onClick={() => setShowAddModal(true)}
             className="text-xs font-semibold text-accent-purple hover:text-accent-purple/80 transition-colors flex items-center gap-1"
           >
             <Plus size={14} /> Add Account
           </button>
         </div>
-        
+
         {accounts.length === 0 ? (
           <div className="p-8 border border-white/5 bg-surface/30 rounded-3xl text-center backdrop-blur-sm flex flex-col items-center justify-center min-h-[200px]">
             <div className="w-16 h-16 rounded-full bg-accent-purple/10 flex items-center justify-center mb-4">
@@ -91,18 +123,20 @@ export default function AccountsTab({ accounts = [], addAccount, currency = 'USD
                 : account.type === 'credit' ? CreditCard
                 : account.type === 'cash' ? Wallet
                 : Landmark
-              
+              const isCredit = account.type === 'credit'
+              const spend = spendByAccount[account.id] || { monthly: 0, allTime: 0 }
+
               return (
-                <div 
+                <div
                   key={account.id}
                   className="group p-5 rounded-3xl border border-white/5 bg-surface/40 hover:bg-surface/80 transition-all cursor-pointer relative overflow-hidden backdrop-blur-xl"
                 >
-                  <div 
+                  <div
                     className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-[50px] opacity-20 group-hover:opacity-40 transition-opacity pointer-events-none"
                     style={{ backgroundColor: account.color }}
                   />
-                  
-                  <div className="flex justify-between items-start mb-8 relative z-10">
+
+                  <div className="flex justify-between items-start mb-6 relative z-10">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl bg-elevated border border-white/10 flex items-center justify-center shadow-sm">
                         <Icon size={18} style={{ color: account.color }} />
@@ -114,13 +148,31 @@ export default function AccountsTab({ accounts = [], addAccount, currency = 'USD
                     </div>
                   </div>
 
-                  <div className="flex justify-between items-end relative z-10">
-                    <span className="text-sm font-mono-numbers text-text-muted"></span>
-                    <span className={`text-2xl font-bold font-mono-numbers ${
-                      account.balance < 0 ? 'text-accent-red' : 'text-text-primary'
-                    }`}>
-                      {formatCurrency(account.balance, currency)}
+                  <div className="flex justify-between items-end relative z-10 mb-4">
+                    <span className="text-sm font-mono-numbers text-text-muted">
+                      {isCredit && account.credit_limit ? `Limit ${formatCurrency(account.credit_limit, currency)}` : ''}
                     </span>
+                    {!isCredit && (
+                      <span className={`text-2xl font-bold font-mono-numbers ${
+                        account.balance < 0 ? 'text-accent-red' : 'text-text-primary'
+                      }`}>
+                        {formatCurrency(account.balance, currency)}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Spend — tracked from transactions tagged with this account,
+                      shown for every account type including cards you don't
+                      personally hold the balance/debt for. */}
+                  <div className="flex items-center gap-4 pt-3 border-t border-white/5 relative z-10">
+                    <div>
+                      <p className="text-[10px] text-text-muted uppercase tracking-wider font-bold">This Month</p>
+                      <p className="text-sm font-mono-numbers text-text-primary font-semibold">{formatCurrency(spend.monthly, currency)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-text-muted uppercase tracking-wider font-bold">All Time</p>
+                      <p className="text-sm font-mono-numbers text-text-primary font-semibold">{formatCurrency(spend.allTime, currency)}</p>
+                    </div>
                   </div>
                 </div>
               )
@@ -163,23 +215,44 @@ export default function AccountsTab({ accounts = [], addAccount, currency = 'USD
               </div>
             </div>
           </div>
-          <div>
-            <label className="text-xs font-semibold text-text-muted uppercase mb-1 block">Current Balance</label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">{getCurrencySymbol(currency)}</span>
-              <input
-                type="number"
-                step="0.01"
-                value={balance}
-                onChange={e => setBalance(e.target.value)}
-                placeholder="0.00"
-                className="input-field pl-8"
-              />
+          {type === 'credit' ? (
+            <div>
+              <label className="text-xs font-semibold text-text-muted uppercase mb-1 block">Credit Limit</label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">{getCurrencySymbol(currency)}</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={creditLimit}
+                  onChange={e => setCreditLimit(e.target.value)}
+                  placeholder="0.00"
+                  className="input-field pl-8"
+                />
+              </div>
+              <p className="text-[10px] text-text-muted mt-1">
+                For a card you're not the account holder on (e.g. an authorized user), this just tracks your spend against its limit — it won't affect your net worth above.
+              </p>
             </div>
-            <p className="text-[10px] text-text-muted mt-1">Use negative values for debt (e.g. Credit Cards)</p>
-          </div>
-          <Button type="submit" className="w-full bg-accent-purple text-white py-3 mt-2">
-            Save Account
+          ) : (
+            <div>
+              <label className="text-xs font-semibold text-text-muted uppercase mb-1 block">Current Balance</label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted">{getCurrencySymbol(currency)}</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={balance}
+                  onChange={e => setBalance(e.target.value)}
+                  placeholder="0.00"
+                  className="input-field pl-8"
+                />
+              </div>
+              <p className="text-[10px] text-text-muted mt-1">Use negative values for debt</p>
+            </div>
+          )}
+          <Button type="submit" disabled={isSubmitting} className="w-full bg-accent-purple text-white py-3 mt-2 disabled:opacity-50">
+            {isSubmitting ? 'Saving...' : 'Save Account'}
           </Button>
         </form>
       </Modal>

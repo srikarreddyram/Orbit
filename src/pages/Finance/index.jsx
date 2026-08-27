@@ -123,9 +123,10 @@ export default function Finance() {
               />
             )}
             {activeTab === 'accounts' && (
-              <AccountsTab 
-                accounts={accounts} 
-                addAccount={addAccount} 
+              <AccountsTab
+                accounts={accounts}
+                addAccount={addAccount}
+                transactions={transactions}
                 currency={currency}
               />
             )}
@@ -152,11 +153,12 @@ export default function Finance() {
         </AnimatePresence>
       </div>
 
-      <AddTransactionSheet 
-        isOpen={showAddModal} 
-        onClose={() => setShowAddModal(false)} 
+      <AddTransactionSheet
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
         addTransaction={addTransaction}
         categories={categories}
+        accounts={accounts}
         onManageCategories={() => setShowCategoryModal(true)}
         currency={currency}
       />
