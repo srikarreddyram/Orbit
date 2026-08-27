@@ -68,10 +68,12 @@ export default function Finance() {
         </button>
       </div>
 
-      {/* iOS Style Segmented Control (Tabs) — hidden while drilled into an account */}
+      {/* Segmented Control (Tabs) — icon-only on mobile so all tabs fit without
+          horizontal scrolling, labels return once there's room at sm+. Hidden
+          while drilled into an account. */}
       {!selectedAccount && (
-        <div className="w-full overflow-x-auto hide-scrollbar mb-6">
-          <div className="flex p-1.5 bg-surface/80 backdrop-blur-md rounded-2xl border border-white/5 shadow-inner w-max min-w-full">
+        <div className="w-full mb-6">
+          <div className="flex p-1.5 bg-surface/80 backdrop-blur-md rounded-2xl border border-white/5 shadow-inner">
             {TABS.map((tab) => {
               const Icon = tab.icon
               const isActive = activeTab === tab.id
@@ -79,7 +81,7 @@ export default function Finance() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all relative whitespace-nowrap
+                  className={`flex-1 flex items-center justify-center gap-2 px-2 sm:px-4 md:px-6 py-2.5 rounded-xl text-sm font-semibold transition-all relative whitespace-nowrap
                     ${isActive ? 'text-white' : 'text-text-muted hover:text-text-secondary'}
                   `}
                 >
@@ -90,8 +92,8 @@ export default function Finance() {
                       transition={{ type: 'spring', bounce: 0.2, duration: 0.5 }}
                     />
                   )}
-                  <Icon size={16} className="relative z-10" />
-                  <span className="relative z-10">{tab.label}</span>
+                  <Icon size={16} className="relative z-10 shrink-0" />
+                  <span className="relative z-10 hidden sm:inline">{tab.label}</span>
                 </button>
               )
             })}
