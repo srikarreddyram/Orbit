@@ -38,8 +38,7 @@ async function bootstrapCategories(userId) {
 
 // --- Transactions ---
 router.get('/transactions', asyncHandler(async (req, res) => {
-  const since = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-  const transactions = await Transaction.find({ user_id: req.userId, date: { $gte: since } })
+  const transactions = await Transaction.find({ user_id: req.userId })
     .sort({ date: -1, created_at: -1 })
   res.json(transactions)
 }))

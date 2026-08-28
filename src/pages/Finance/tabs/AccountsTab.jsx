@@ -16,10 +16,6 @@ export default function AccountsTab({ accounts = [], addAccount, deleteAccount, 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const submittingRef = useRef(false)
 
-  const totalAssets = accounts.filter(a => a.balance > 0).reduce((sum, a) => sum + Number(a.balance), 0)
-  const totalLiabilities = accounts.filter(a => a.balance < 0).reduce((sum, a) => sum + Math.abs(Number(a.balance)), 0)
-  const netWorth = totalAssets - totalLiabilities
-
   // Spend per account — scoped to whichever account a transaction was tagged
   // with, so a card someone else owns (e.g. a parent's credit card someone
   // is an authorized user on) can still be tracked without it affecting
@@ -83,27 +79,8 @@ export default function AccountsTab({ accounts = [], addAccount, deleteAccount, 
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
 
-      {/* Net Worth Hero */}
-      <div className="text-center py-10">
-        <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-2">Net Worth</h2>
-        <div className="text-5xl font-bold font-mono-numbers text-text-primary">
-          {formatCurrency(netWorth, currency)}
-        </div>
-        <div className="flex items-center justify-center gap-6 mt-6">
-          <div className="text-center">
-            <span className="text-xs text-text-muted uppercase tracking-wider font-bold block mb-1">Assets</span>
-            <span className="text-lg font-mono-numbers text-emerald-400 font-semibold">{formatCurrency(totalAssets, currency)}</span>
-          </div>
-          <div className="w-[1px] h-8 bg-border" />
-          <div className="text-center">
-            <span className="text-xs text-text-muted uppercase tracking-wider font-bold block mb-1">Debt</span>
-            <span className="text-lg font-mono-numbers text-accent-red font-semibold">{formatCurrency(totalLiabilities, currency)}</span>
-          </div>
-        </div>
-      </div>
-
       {/* Accounts List */}
-      <div className="space-y-4 pb-20">
+      <div className="space-y-4 pb-20 pt-4">
         <div className="flex items-center justify-between px-2">
           <h3 className="text-lg font-bold">Your Accounts</h3>
           <button
