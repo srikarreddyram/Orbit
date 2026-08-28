@@ -25,6 +25,7 @@ export default function Settings() {
   const { profile, updateProfile, signOut } = useAuth()
   const [name, setName] = useState(profile?.name || '')
   const [calorieGoal, setCalorieGoal] = useState(profile?.daily_calorie_goal || 2000)
+  const [proteinGoal, setProteinGoal] = useState(profile?.daily_protein_goal || 120)
   const [waterGoal, setWaterGoal] = useState(profile?.daily_water_goal || 8)
   const [workoutGoal, setWorkoutGoal] = useState(profile?.weekly_workout_goal || 4)
   const [monthlyBudget, setMonthlyBudget] = useState(profile?.monthly_budget || 2500)
@@ -55,6 +56,7 @@ export default function Settings() {
       await updateProfile({
         name,
         daily_calorie_goal: calorieGoal,
+        daily_protein_goal: proteinGoal,
         daily_water_goal: waterGoal,
         weekly_workout_goal: workoutGoal,
         monthly_budget: monthlyBudget,
@@ -169,6 +171,15 @@ export default function Settings() {
               type="number"
               value={calorieGoal}
               onChange={(e) => setCalorieGoal(parseInt(e.target.value))}
+              className="input-field font-mono-numbers"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-text-muted mb-1 block">Protein Target (g)</label>
+            <input
+              type="number"
+              value={proteinGoal}
+              onChange={(e) => setProteinGoal(parseInt(e.target.value))}
               className="input-field font-mono-numbers"
             />
           </div>

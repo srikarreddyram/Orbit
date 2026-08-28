@@ -2,11 +2,11 @@ import { useMemo } from 'react'
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
 import { Droplet, Flame, Candy, HeartPulse } from 'lucide-react'
 
-export default function DashboardTab({ data, profile, waterGoalGlasses = 8 }) {
+export default function DashboardTab({ data, profile, waterGoalGlasses = 8, streak = 0 }) {
   // Use DB targets or fallbacks
   const targetCalories = profile?.daily_calorie_goal || 2500
   const targets = {
-    protein: Math.round((targetCalories * 0.3) / 4), // 30% protein
+    protein: profile?.daily_protein_goal || 120,
     carbs: Math.round((targetCalories * 0.4) / 4),   // 40% carbs
     fat: Math.round((targetCalories * 0.3) / 9),     // 30% fat
   }
@@ -30,6 +30,20 @@ export default function DashboardTab({ data, profile, waterGoalGlasses = 8 }) {
 
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
+      {/* Goal Streak — a day counts when calories stayed at/under goal,
+          protein met goal, and the rest stayed under a healthy ceiling */}
+      <div className="bg-surface/30 border border-white/5 rounded-3xl p-5 backdrop-blur-md flex items-center gap-4">
+        <div className="w-12 h-12 rounded-xl bg-accent-red/10 flex items-center justify-center border border-accent-red/20 shrink-0">
+          <Flame size={20} className="text-accent-red" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-xs text-text-muted uppercase tracking-wider font-semibold">Goal Streak</p>
+          <p className="text-xl font-bold font-mono-numbers text-text-primary">
+            {streak} <span className="text-sm text-text-muted font-sans font-normal">day{streak === 1 ? '' : 's'}</span>
+          </p>
+        </div>
+      </div>
+
       {/* Main Macro Ring */}
       <div className="bg-surface/30 border border-white/5 rounded-3xl p-8 backdrop-blur-md relative overflow-hidden flex flex-col items-center justify-center">
         {/* Glow effect */}

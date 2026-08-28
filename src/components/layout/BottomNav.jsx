@@ -17,7 +17,7 @@ const mainTabs = [
   { path: '/', icon: LayoutDashboard, label: 'Today' },
   { path: '/tasks', icon: CheckSquare, label: 'Tasks' },
   { path: '/workouts', icon: Dumbbell, label: 'Workouts' },
-  { path: '/nutrition', icon: UtensilsCrossed, label: 'Food' },
+  { path: '/nutrition', icon: UtensilsCrossed, label: 'Nutrition' },
   { path: '/finance', icon: Wallet, label: 'Finance' },
 ]
 

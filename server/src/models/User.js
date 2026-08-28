@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   name: { type: String, default: '' },
   avatar_url: { type: String, default: null },
   daily_calorie_goal: { type: Number, default: 2000 },
+  daily_protein_goal: { type: Number, default: 120 },
   daily_water_goal: { type: Number, default: 8 },
   weekly_workout_goal: { type: Number, default: 4 },
   monthly_budget: { type: Number, default: 2500 },

@@ -12,6 +12,7 @@ const Dashboard = lazy(() => import('./pages/Dashboard'))
 const Tasks = lazy(() => import('./pages/Tasks'))
 const Workouts = lazy(() => import('./pages/Workouts'))
 const Nutrition = lazy(() => import('./pages/Nutrition'))
+const LogFood = lazy(() => import('./pages/Nutrition/LogFood'))
 const Finance = lazy(() => import('./pages/Finance'))
 const Settings = lazy(() => import('./pages/Settings'))
 
@@ -73,6 +74,7 @@ function App() {
                 <Route path="tasks" element={<ErrorBoundary><Tasks /></ErrorBoundary>} />
                 <Route path="workouts" element={<ErrorBoundary><Workouts /></ErrorBoundary>} />
                 <Route path="nutrition" element={<ErrorBoundary><Nutrition /></ErrorBoundary>} />
+                <Route path="nutrition/log" element={<ErrorBoundary><LogFood /></ErrorBoundary>} />
                 <Route path="finance" element={<ErrorBoundary><Finance /></ErrorBoundary>} />
                 <Route path="settings" element={<ErrorBoundary><Settings /></ErrorBoundary>} />
               </Route>

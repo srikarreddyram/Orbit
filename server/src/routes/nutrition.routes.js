@@ -8,8 +8,7 @@ const router = Router()
 router.use(requireAuth)
 
 router.get('/meals', asyncHandler(async (req, res) => {
-  const since = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-  const meals = await Meal.find({ user_id: req.userId, logged_at: { $gte: since } }).sort({ created_at: -1 })
+  const meals = await Meal.find({ user_id: req.userId }).sort({ created_at: -1 })
   res.json(meals)
 }))
 
