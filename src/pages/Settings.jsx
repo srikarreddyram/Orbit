@@ -24,11 +24,7 @@ const keyboardShortcuts = [
 export default function Settings() {
   const { profile, updateProfile, signOut } = useAuth()
   const [name, setName] = useState(profile?.name || '')
-  const [calorieGoal, setCalorieGoal] = useState(profile?.daily_calorie_goal || 2000)
-  const [proteinGoal, setProteinGoal] = useState(profile?.daily_protein_goal || 120)
-  const [waterGoal, setWaterGoal] = useState(profile?.daily_water_goal || 8)
   const [workoutGoal, setWorkoutGoal] = useState(profile?.weekly_workout_goal || 4)
-  const [monthlyBudget, setMonthlyBudget] = useState(profile?.monthly_budget || 2500)
   const [currency, setCurrency] = useState(profile?.currency || 'USD')
   const [showClearConfirm, setShowClearConfirm] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -55,11 +51,7 @@ export default function Settings() {
     try {
       await updateProfile({
         name,
-        daily_calorie_goal: calorieGoal,
-        daily_protein_goal: proteinGoal,
-        daily_water_goal: waterGoal,
         weekly_workout_goal: workoutGoal,
-        monthly_budget: monthlyBudget,
         currency,
         lifescore_weights: weights,
       })
@@ -158,69 +150,32 @@ export default function Settings() {
         </div>
       </Card>
 
-      {/* Goals */}
+      {/* Goals — calorie/protein/water goals live on the Nutrition page
+          itself, next to the numbers they govern */}
       <Card>
         <div className="flex items-center gap-2 mb-4">
           <Target size={16} className="text-text-muted" />
-          <h2 className="text-sm font-medium text-text-secondary">Daily Goals</h2>
+          <h2 className="text-sm font-medium text-text-secondary">Weekly Workout Goal</h2>
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="text-xs text-text-muted mb-1 block">Calorie Target</label>
-            <input
-              type="number"
-              value={calorieGoal}
-              onChange={(e) => setCalorieGoal(parseInt(e.target.value))}
-              className="input-field font-mono-numbers"
-            />
-          </div>
-          <div>
-            <label className="text-xs text-text-muted mb-1 block">Protein Target (g)</label>
-            <input
-              type="number"
-              value={proteinGoal}
-              onChange={(e) => setProteinGoal(parseInt(e.target.value))}
-              className="input-field font-mono-numbers"
-            />
-          </div>
-          <div>
-            <label className="text-xs text-text-muted mb-1 block">Water Goal (glasses)</label>
-            <input
-              type="number"
-              value={waterGoal}
-              onChange={(e) => setWaterGoal(parseInt(e.target.value))}
-              className="input-field font-mono-numbers"
-            />
-          </div>
-          <div>
-            <label className="text-xs text-text-muted mb-1 block">Weekly Workout Goal</label>
-            <input
-              type="number"
-              value={workoutGoal}
-              onChange={(e) => setWorkoutGoal(parseInt(e.target.value))}
-              className="input-field font-mono-numbers"
-            />
-          </div>
+        <div>
+          <label className="text-xs text-text-muted mb-1 block">Workouts per week</label>
+          <input
+            type="number"
+            value={workoutGoal}
+            onChange={(e) => setWorkoutGoal(parseInt(e.target.value))}
+            className="input-field font-mono-numbers"
+          />
         </div>
       </Card>
 
-      {/* Budget */}
+      {/* Currency — the monthly budget itself now lives on the Finance page,
+          next to the numbers it governs */}
       <Card>
         <div className="flex items-center gap-2 mb-4">
           <Wallet size={16} className="text-text-muted" />
-          <h2 className="text-sm font-medium text-text-secondary">Budget</h2>
+          <h2 className="text-sm font-medium text-text-secondary">Currency</h2>
         </div>
         <div>
-          <label className="text-xs text-text-muted mb-1 block">Monthly Budget</label>
-          <input
-            type="number"
-            value={monthlyBudget}
-            onChange={(e) => setMonthlyBudget(parseFloat(e.target.value))}
-            className="input-field font-mono-numbers"
-            step="100"
-          />
-        </div>
-        <div className="mt-4">
           <label className="text-xs text-text-muted mb-1 block">Currency</label>
           <select
             value={currency}

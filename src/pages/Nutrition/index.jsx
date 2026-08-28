@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LayoutDashboard, Utensils, Plus } from 'lucide-react'
+import { LayoutDashboard, Utensils, Plus, Settings2 } from 'lucide-react'
 import useNutrition from '../../hooks/useNutrition'
 import useAuth from '../../hooks/useAuth'
 import useMetrics from '../../hooks/useMetrics'
@@ -11,6 +11,7 @@ import { calculateStreak } from '../../utils/streakCalculator'
 
 import DashboardTab from './tabs/DashboardTab'
 import LogTab from './tabs/LogTab'
+import NutritionGoalsModal from './components/NutritionGoalsModal'
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -24,6 +25,7 @@ export default function Nutrition() {
   const navigate = useNavigate()
 
   const [activeTab, setActiveTab] = useState('dashboard')
+  const [showGoalsModal, setShowGoalsModal] = useState(false)
 
   if (isLoading) {
     return (
@@ -69,14 +71,25 @@ export default function Nutrition() {
         <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
           Nutrition
         </h1>
-        <button
-          onClick={() => navigate('/nutrition/log')}
-          className="w-10 h-10 bg-accent-amber text-black rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(194,135,42,0.3)] hover:scale-105 active:scale-95 transition-all"
-          aria-label="Log food"
-        >
-          <Plus size={20} />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowGoalsModal(true)}
+            className="w-10 h-10 bg-surface border border-white/5 text-text-secondary rounded-full flex items-center justify-center hover:text-text-primary hover:bg-elevated transition-all"
+            aria-label="Edit nutrition goals"
+          >
+            <Settings2 size={18} />
+          </button>
+          <button
+            onClick={() => navigate('/nutrition/log')}
+            className="w-10 h-10 bg-accent-amber text-black rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(194,135,42,0.3)] hover:scale-105 active:scale-95 transition-all"
+            aria-label="Log food"
+          >
+            <Plus size={20} />
+          </button>
+        </div>
       </div>
+
+      <NutritionGoalsModal isOpen={showGoalsModal} onClose={() => setShowGoalsModal(false)} />
 
       {/* Segmented Control (Tabs) — icon-only on mobile so both tabs always
           fit without horizontal scrolling, labels return once there's room. */}

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Plus, CreditCard, PieChart, Repeat, List, LayoutDashboard } from 'lucide-react'
+import { Plus, CreditCard, PieChart, Repeat, List, LayoutDashboard, Settings2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import useFinance from '../../hooks/useFinance'
 import useAuth from '../../hooks/useAuth'
@@ -14,6 +14,7 @@ import RecurringTab from './tabs/RecurringTab'
 import AddTransactionSheet from './components/AddTransactionSheet'
 import CategoryManagerModal from './components/CategoryManagerModal'
 import AccountDetail from './components/AccountDetail'
+import BudgetGoalModal from './components/BudgetGoalModal'
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -34,6 +35,7 @@ export default function Finance() {
   const [activeTab, setActiveTab] = useState('dashboard')
   const [showAddModal, setShowAddModal] = useState(false)
   const [showCategoryModal, setShowCategoryModal] = useState(false)
+  const [showBudgetModal, setShowBudgetModal] = useState(false)
   const [selectedAccount, setSelectedAccount] = useState(null)
   const monthlyBudget = profile?.monthly_budget || 2500
   const currency = profile?.currency || 'USD'
@@ -60,13 +62,24 @@ export default function Finance() {
         <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/60">
           Finance
         </h1>
-        <button 
-          onClick={() => setShowAddModal(true)}
-          className="w-10 h-10 bg-accent-purple text-white rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(124,106,247,0.3)] hover:scale-105 active:scale-95 transition-all"
-        >
-          <Plus size={20} />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowBudgetModal(true)}
+            className="w-10 h-10 bg-surface border border-white/5 text-text-secondary rounded-full flex items-center justify-center hover:text-text-primary hover:bg-elevated transition-all"
+            aria-label="Edit monthly budget"
+          >
+            <Settings2 size={18} />
+          </button>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="w-10 h-10 bg-accent-purple text-white rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(124,106,247,0.3)] hover:scale-105 active:scale-95 transition-all"
+          >
+            <Plus size={20} />
+          </button>
+        </div>
       </div>
+
+      <BudgetGoalModal isOpen={showBudgetModal} onClose={() => setShowBudgetModal(false)} currency={currency} />
 
       {/* Segmented Control (Tabs) — icon-only on mobile so all tabs fit without
           horizontal scrolling, labels return once there's room at sm+. Hidden
