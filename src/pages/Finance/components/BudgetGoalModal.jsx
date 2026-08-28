@@ -25,6 +25,19 @@ export default function BudgetGoalModal({ isOpen, onClose, currency = 'USD' }) {
     }
   }
 
+  const handleClear = async () => {
+    setSaving(true)
+    try {
+      await updateProfile({ monthly_budget: null })
+      toast.success('Budget cleared')
+      onClose()
+    } catch {
+      toast.error('Failed to clear budget')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Monthly Budget">
       <form onSubmit={handleSave} className="space-y-4">
@@ -46,6 +59,16 @@ export default function BudgetGoalModal({ isOpen, onClose, currency = 'USD' }) {
         <Button type="submit" disabled={saving || !monthlyBudget || monthlyBudget <= 0} className="w-full bg-accent-purple text-white py-3 mt-2 disabled:opacity-50">
           {saving ? 'Saving...' : 'Save Budget'}
         </Button>
+        {profile?.monthly_budget ? (
+          <button
+            type="button"
+            onClick={handleClear}
+            disabled={saving}
+            className="w-full text-sm text-text-muted hover:text-accent-red transition-colors disabled:opacity-50"
+          >
+            Clear Budget
+          </button>
+        ) : null}
       </form>
     </Modal>
   )
