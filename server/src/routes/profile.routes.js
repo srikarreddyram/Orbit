@@ -9,7 +9,7 @@ router.use(requireAuth)
 const ALLOWED_FIELDS = [
   'name', 'avatar_url', 'daily_calorie_goal', 'daily_protein_goal', 'daily_water_goal',
   'weekly_workout_goal', 'monthly_budget',
-  'currency', 'lifescore_weights',
+  'currency',
 ]
 
 router.patch('/', asyncHandler(async (req, res) => {

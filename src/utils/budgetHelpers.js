@@ -20,17 +20,3 @@ export function getPeriodStart(period) {
     default: return getMonthStart()
   }
 }
-
-/**
- * Normalize a budget's limit to a monthly-equivalent amount, so budgets on
- * different spans can still be summed meaningfully (e.g. for LifeScore).
- */
-export function toMonthlyEquivalent(amount, period) {
-  switch (period) {
-    case 'weekly': return amount * (52 / 12)
-    case 'quarterly': return amount / 3
-    case 'yearly': return amount / 12
-    case 'monthly':
-    default: return amount
-  }
-}

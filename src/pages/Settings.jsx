@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import {
-  User, Target, Wallet, Sliders, Download, Trash2,
+  User, Target, Wallet, Download, Trash2,
   Save, Keyboard, AlertTriangle,
 } from 'lucide-react'
 import Card from '../components/ui/Card'
@@ -30,21 +30,11 @@ export default function Settings() {
   const [saving, setSaving] = useState(false)
   const [exporting, setExporting] = useState(false)
 
-  // LifeScore weights
-  const [weights, setWeights] = useState(
-    profile?.lifescore_weights || { tasks: 25, workouts: 25, calories: 25, finance: 25 }
-  )
-  const totalWeights = Object.values(weights).reduce((a, b) => a + b, 0)
-
   // Metrics hook
   const { metrics, updateMetrics } = useMetrics()
   const [weightKg, setWeightKg] = useState(metrics?.weight_kg || 70)
   const [heightCm, setHeightCm] = useState(metrics?.height_cm || 170)
   const [age, setAge] = useState(metrics?.age || 30)
-
-  const updateWeight = (key, value) => {
-    setWeights((prev) => ({ ...prev, [key]: parseInt(value) || 0 }))
-  }
 
   const handleSave = async () => {
     setSaving(true)
@@ -53,7 +43,6 @@ export default function Settings() {
         name,
         weekly_workout_goal: workoutGoal,
         currency,
-        lifescore_weights: weights,
       })
       await updateMetrics({
         weight_kg: weightKg,
@@ -189,38 +178,6 @@ export default function Settings() {
             ))}
           </select>
         </div>
-      </Card>
-
-      {/* LifeScore Weights */}
-      <Card>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Sliders size={16} className="text-text-muted" />
-            <h2 className="text-sm font-medium text-text-secondary">LifeScore Weights</h2>
-          </div>
-          <span className={`text-xs font-mono-numbers ${totalWeights === 100 ? 'text-accent-green' : 'text-accent-red'}`}>
-            Total: {totalWeights}/100
-          </span>
-        </div>
-        <div className="space-y-3">
-          {Object.entries(weights).map(([key, value]) => (
-            <div key={key} className="flex items-center gap-3">
-              <span className="text-sm text-text-secondary capitalize w-20">{key}</span>
-              <input
-                type="range"
-                min={0}
-                max={40}
-                value={value}
-                onChange={(e) => updateWeight(key, e.target.value)}
-                className="flex-1 accent-accent-purple"
-              />
-              <span className="text-sm font-mono-numbers text-text-primary w-10 text-right">{value}%</span>
-            </div>
-          ))}
-        </div>
-        {totalWeights !== 100 && (
-          <p className="text-xs text-accent-red mt-2">Weights must sum to 100</p>
-        )}
       </Card>
 
       {/* Keyboard shortcuts */}

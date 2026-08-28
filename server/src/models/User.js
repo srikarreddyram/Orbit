@@ -12,10 +12,6 @@ const userSchema = new mongoose.Schema({
   weekly_workout_goal: { type: Number, default: 4 },
   monthly_budget: { type: Number, default: 2500 },
   currency: { type: String, default: 'USD' },
-  lifescore_weights: {
-    type: Object,
-    default: { tasks: 25, workouts: 25, calories: 25, finance: 25 },
-  },
   created_at: { type: Date, default: Date.now },
 })
 
