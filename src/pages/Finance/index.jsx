@@ -37,7 +37,7 @@ export default function Finance() {
   const [showCategoryModal, setShowCategoryModal] = useState(false)
   const [showBudgetModal, setShowBudgetModal] = useState(false)
   const [selectedAccount, setSelectedAccount] = useState(null)
-  const monthlyBudget = profile?.monthly_budget || 2500
+  const monthlyBudget = profile?.monthly_budget || null
   const currency = profile?.currency || 'USD'
 
   // Transactions scoped to the current calendar month, for "This Month" widgets
@@ -144,6 +144,7 @@ export default function Finance() {
                 categories={categories}
                 currency={currency}
                 onSelectAccount={setSelectedAccount}
+                onSetBudget={() => setShowBudgetModal(true)}
               />
             )}
             {activeTab === 'transactions' && (

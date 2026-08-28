@@ -46,7 +46,7 @@ export default function SpendingChart({ transactions, monthlyBudget, currency = 
   }, [transactions])
 
   const currentSpent = spendingCurve.reduce((max, d) => Math.max(max, d.spent || 0), 0)
-  const isOverBudget = currentSpent > monthlyBudget
+  const isOverBudget = monthlyBudget > 0 && currentSpent > monthlyBudget
   
   // Use a premium purple/blue gradient or red if over budget
   const gradientColors = isOverBudget

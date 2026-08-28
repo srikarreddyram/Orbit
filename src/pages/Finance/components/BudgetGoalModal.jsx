@@ -7,11 +7,12 @@ import { getCurrencySymbol } from '../../../utils/currencyHelpers'
 
 export default function BudgetGoalModal({ isOpen, onClose, currency = 'USD' }) {
   const { profile, updateProfile } = useAuth()
-  const [monthlyBudget, setMonthlyBudget] = useState(profile?.monthly_budget || 2500)
+  const [monthlyBudget, setMonthlyBudget] = useState(profile?.monthly_budget || '')
   const [saving, setSaving] = useState(false)
 
   const handleSave = async (e) => {
     e.preventDefault()
+    if (!monthlyBudget || monthlyBudget <= 0) return
     setSaving(true)
     try {
       await updateProfile({ monthly_budget: monthlyBudget })
@@ -34,13 +35,15 @@ export default function BudgetGoalModal({ isOpen, onClose, currency = 'USD' }) {
             <input
               type="number"
               step="100"
+              min="0"
               value={monthlyBudget}
-              onChange={(e) => setMonthlyBudget(parseFloat(e.target.value))}
+              onChange={(e) => setMonthlyBudget(e.target.value === '' ? '' : parseFloat(e.target.value))}
+              placeholder="e.g. 2500"
               className="input-field font-mono-numbers pl-8"
             />
           </div>
         </div>
-        <Button type="submit" disabled={saving} className="w-full bg-accent-purple text-white py-3 mt-2 disabled:opacity-50">
+        <Button type="submit" disabled={saving || !monthlyBudget || monthlyBudget <= 0} className="w-full bg-accent-purple text-white py-3 mt-2 disabled:opacity-50">
           {saving ? 'Saving...' : 'Save Budget'}
         </Button>
       </form>
